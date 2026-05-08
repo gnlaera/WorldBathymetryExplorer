@@ -53,10 +53,10 @@ body.ui-hidden .ui-show-button{display:block}
 .globe-align-row{display:none;grid-template-columns:96px repeat(4,1fr);align-items:center;gap:6px;border-top:1px solid rgba(125,190,235,.14);padding-top:6px;margin-top:2px}.globe-align-row label{font-size:calc(10px * var(--ui-font-scale));text-transform:uppercase;letter-spacing:.8px;color:#d8e8ff}.globe-align-row button{background:rgba(31,66,98,.82);border:1px solid rgba(125,190,235,.24);color:#dff4ff;border-radius:999px;padding:5px 8px;font-size:calc(10px * var(--ui-font-scale));min-height:28px}.globe-align-row button:hover{background:rgba(47,94,135,.9)}body.is-globe-view .globe-align-row{display:grid}
 body.ui-hidden .cesium-viewer-bottom{display:none!important}
 
-@media(max-width:900px){.title-bar{left:12px;right:12px;transform:none;padding:7px 12px}.title-bar h1{font-size:calc(14px * var(--ui-font-scale))}.title-bar .subtitle{display:none}.search-box{top:50px;left:8px;right:8px}.search-box input{min-width:0;width:100%;font-size:calc(16px * var(--ui-font-scale));padding:10px 12px}.search-box button{min-height:44px}.info-panel{top:101px;left:8px;max-width:260px}.quickview-panel{top:145px;left:8px;max-width:260px}.info-toggle,.qv-toggle{min-height:42px}.info-content{max-height:42vh;font-size:calc(11px * var(--ui-font-scale))}.bottom-controls{bottom:calc(8px + env(safe-area-inset-bottom));width:calc(100% - 14px);max-width:420px}.control-pill{width:100%;justify-content:center}.control-pill button{flex:1;padding:10px 8px;font-size:calc(10px * var(--ui-font-scale));min-height:44px}.collapse-btn{flex:0 0 auto!important}.opacity-panel{width:100%;padding:7px 9px}.opacity-row{grid-template-columns:84px 1fr 40px 10px;gap:6px}.font-row{grid-template-columns:84px auto 1fr auto 40px;gap:6px}.globe-align-row{grid-template-columns:84px repeat(4,1fr);gap:5px}.opacity-row label,.font-row label{font-size:calc(9px * var(--ui-font-scale))}.opacity-row input[type=range]{height:10px}.action-row button{min-height:32px}.minimap-container{display:none}.depth-card{right:8px;left:8px;bottom:205px;max-width:none;font-size:calc(11px * var(--ui-font-scale))}.coord-display{font-size:calc(10px * var(--ui-font-scale));left:7px;bottom:50px}.toast{left:8px;right:8px;transform:none;text-align:center}.projection-notice{left:8px;right:8px;top:92px;transform:none;text-align:center}.leaflet-control-layers{max-height:48vh;overflow:auto;max-width:250px}.leaflet-control-zoom a{width:38px!important;height:38px!important;line-height:38px!important}.controls-tab{bottom:calc(10px + env(safe-area-inset-bottom));min-height:44px}}
+@media(max-width:900px){.title-bar{left:12px;right:12px;transform:none;padding:7px 12px}.title-bar h1{font-size:calc(14px * var(--ui-font-scale))}.title-bar .subtitle{display:none}.search-box{top:48px;left:50%;right:auto;transform:translateX(-50%);width:calc(100% - 24px);max-width:400px}.search-box input{min-width:0;width:100%;font-size:calc(16px * var(--ui-font-scale));padding:10px 12px}.search-box button{min-height:44px}.info-panel{top:101px;left:8px;max-width:260px}.quickview-panel{top:145px;left:8px;max-width:260px}.info-toggle,.qv-toggle{min-height:42px}.info-content{max-height:42vh;font-size:calc(11px * var(--ui-font-scale))}.bottom-controls{bottom:calc(8px + env(safe-area-inset-bottom));width:calc(100% - 14px);max-width:420px}.control-pill{width:100%;justify-content:center}.control-pill button{flex:1;padding:10px 8px;font-size:calc(10px * var(--ui-font-scale));min-height:44px}.collapse-btn{flex:0 0 auto!important}.opacity-panel{width:100%;padding:7px 9px}.opacity-row{grid-template-columns:84px 1fr 40px 10px;gap:6px}.font-row{grid-template-columns:84px auto 1fr auto 40px;gap:6px}.globe-align-row{grid-template-columns:84px repeat(4,1fr);gap:5px}.opacity-row label,.font-row label{font-size:calc(9px * var(--ui-font-scale))}.opacity-row input[type=range]{height:10px}.action-row button{min-height:32px}.minimap-container{display:none}.depth-card{right:8px;left:8px;bottom:205px;max-width:none;font-size:calc(11px * var(--ui-font-scale))}.coord-display{font-size:calc(10px * var(--ui-font-scale));left:7px;bottom:50px}.toast{left:8px;right:8px;transform:none;text-align:center}.projection-notice{left:8px;right:8px;top:92px;transform:none;text-align:center}.leaflet-control-layers{max-height:48vh;overflow:auto;max-width:250px}.leaflet-control-zoom a{width:38px!important;height:38px!important;line-height:38px!important}.controls-tab{bottom:calc(10px + env(safe-area-inset-bottom));min-height:44px}}
 @media(max-width:480px){.title-bar h1{font-size:calc(12px * var(--ui-font-scale))}.info-panel,.quickview-panel{max-width:210px}.qv-btn{font-size:calc(10px * var(--ui-font-scale));padding:6px 9px}.opacity-row{grid-template-columns:76px 1fr 36px 9px}.font-row{grid-template-columns:76px auto 1fr auto 36px;gap:5px}.globe-align-row{grid-template-columns:76px repeat(4,1fr);gap:4px}.action-row button,.font-row button{font-size:calc(9px * var(--ui-font-scale));padding:5px 7px}.depth-card{bottom:218px}.control-pill button{font-size:calc(9px * var(--ui-font-scale));padding-left:5px;padding-right:5px}}
 
-/* === Nav Controls Stack (Google-Maps style) === */
+/* === Nav Controls === */
 .nav-controls{position:fixed;right:14px;top:50%;transform:translateY(-60%);z-index:1100;display:flex;flex-direction:column;align-items:center;gap:8px}
 .nav-btn{width:40px;height:40px;border-radius:50%;background:rgba(6,14,25,.92);border:1px solid rgba(125,190,235,.28);color:#9bd7ff;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 12px rgba(0,0,0,.4);transition:background .15s,transform .1s}
 .nav-btn:hover{background:rgba(30,73,106,.7)}
@@ -92,9 +92,12 @@ body.profile-drawing #map{cursor:crosshair!important}
 body.profile-drawing .leaflet-container{cursor:crosshair!important}
 body.profile-drawing .leaflet-interactive{cursor:crosshair!important}
 
-/* === Mobile Responsive Fixes === */
+.leaflet-top.leaflet-left{top:170px!important}
+
+/* === Mobile === */
 @media(max-width:900px){
-  .nav-controls{right:8px;top:auto;bottom:calc(210px + env(safe-area-inset-bottom));transform:none}
+  .nav-controls{right:8px;top:60px;bottom:auto;transform:none}
+  .leaflet-top.leaflet-left{top:195px!important}
   .nav-btn{width:44px;height:44px}
   .compass-btn{width:48px;height:48px}
   .compass-btn svg{width:38px;height:38px}
@@ -104,7 +107,7 @@ body.profile-drawing .leaflet-interactive{cursor:crosshair!important}
 @media(max-width:480px){
   .profile-canvas-wrap{height:130px}
   .profile-stats{gap:3px 10px}
-  .nav-controls{bottom:calc(200px + env(safe-area-inset-bottom))}
+  .nav-controls{top:55px}
   .nav-btn{width:44px;height:44px}
   .compass-btn{width:46px;height:46px}
   .compass-btn svg{width:36px;height:36px}
@@ -163,7 +166,7 @@ Click or tap anywhere. The readout now tries NOAA BAG first where available, the
 <button class="ui-show-button" id="uiShowButton" type="button">Show UI</button>
 <div class="minimap-container" id="minimapContainer"><div id="minimap"></div></div>
 
-<!-- Navigation Controls (Google-Maps style) -->
+<!-- Navigation Controls -->
 <div class="nav-controls" id="navControls">
   <button class="nav-btn compass-btn" id="compassBtn" type="button" title="Rotate map 90 degrees">
     <svg id="compassSvg" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
@@ -205,7 +208,7 @@ Click or tap anywhere. The readout now tries NOAA BAG first where available, the
   </button>
 </div>
 
-<!-- Profile / Transect Panel -->
+<!-- Profile Panel -->
 <div class="profile-panel" id="profilePanel">
   <div class="profile-panel-header">
     <h3 id="profileTitle">Elevation / Bathymetry Profile</h3>
@@ -292,7 +295,7 @@ for(var bk in BATHY_FACTORIES){if(!layerAvailableInMode(bk,mode))continue;var bl
 for(var ck in CONTOUR_FACTORIES){if(!layerAvailableInMode(ck,mode))continue;var cl=CONTOUR_FACTORIES[ck](co);LCO[ck]=cl;overlays[CONTOUR_NAMES[ck]]=cl;if(S.aC.indexOf(ck)!==-1)cl.addTo(LM)}
 for(var nk in NAUT_FACTORIES){if(!layerAvailableInMode(nk,mode))continue;var nl=NAUT_FACTORIES[nk](no);LNO[nk]=nl;overlays[NAUT_NAMES[nk]]=nl;if(S.aN.indexOf(nk)!==-1)nl.addTo(LM)}
 if(!hasAnyActive(LBO)&&LBO.gebcoFlat){LBO.gebcoFlat.addTo(LM);S.aB=["gebcoFlat"]}
-LC=L.control.layers(merc?baseObj.layers:null,overlays,{position:"topright",collapsed:true}).addTo(LM);if(merc){LM.on("baselayerchange",function(e){LB=e.layer;S.baseKey=nameToKey[e.name]||"esriStreet";syncBaseButtons();if(S.baseKey==="esriHybrid"||S.baseKey==="esriSatellite"){S.baseType="satellite";setBathyOpacity(50)}else if(S.baseKey==="esriOcean"){S.baseType="ocean";setBathyOpacity(35);setContourOpacity(95);setNautOpacity(85)}else{S.baseType="map"}syncBaseButtons()})}
+LC=L.control.layers(merc?baseObj.layers:null,overlays,{position:"topleft",collapsed:true}).addTo(LM);if(merc){LM.on("baselayerchange",function(e){LB=e.layer;S.baseKey=nameToKey[e.name]||"esriStreet";syncBaseButtons();if(S.baseKey==="esriHybrid"||S.baseKey==="esriSatellite"){S.baseType="satellite";setBathyOpacity(50)}else if(S.baseKey==="esriOcean"){S.baseType="ocean";setBathyOpacity(35);setContourOpacity(95);setNautOpacity(85)}else{S.baseType="map"}syncBaseButtons()})}
 LM.on("overlayadd",function(e){overlayChanged(e.name,true)});LM.on("overlayremove",function(e){overlayChanged(e.name,false)});
 LM.on("mousemove",function(e){$coords.innerHTML="Lat: "+fmt(e.latlng.lat)+" &nbsp; Lon: "+fmt(normLon(e.latlng.lng))});LM.on("click",function(e){queryLeafletPoint(e.latlng.lat,normLon(e.latlng.lng),e.latlng)});L.control.scale({position:"bottomleft",metric:true,imperial:true}).addTo(LM);if(merc){$mini.classList.remove("hidden");buildMiniMap()}else{$mini.classList.add("hidden")}setBathyOpacity(S.bathyOpacity,true);setContourOpacity(S.contourOpacity,true);setNautOpacity(S.nautOpacity,true);$proj.classList.toggle("active",!merc);$qv.classList.toggle("hidden",!merc);setTimeout(function(){if(LM)LM.invalidateSize()},80)}
 function hasAnyActive(obj){if(!LM)return false;for(var k in obj)if(LM.hasLayer(obj[k]))return true;return false}
@@ -372,9 +375,6 @@ window.addEventListener("resize",function(){if(LM)LM.invalidateSize();if(cViewer
 setUiFontScale(S.fontScale,true);buildMap("mercator");syncViewButtons();syncBaseButtons();setBathyOpacity(S.bathyOpacity,true);setContourOpacity(S.contourOpacity,true);setNautOpacity(S.nautOpacity,true);
 
 
-/* ================================================================
-   UNIFIED 2D MAP (auto Mercator/Plate Carree)
-   ================================================================ */
 function activate2D(){
   if(S.view==="mercator"||S.view==="platecarree")return;
   if(S.view==="globe"){syncFromCesium()}
@@ -405,461 +405,100 @@ function checkAutoTransition(){
 var _origBuildMap2=buildMap;
 buildMap=function(mode){
   _origBuildMap2(mode);
-  if(LM){
-    LM.on("zoomend",checkAutoTransition);
-  }
+  if(LM){LM.on("zoomend",checkAutoTransition)}
 };
 
-/* ================================================================
-   FEATURE 1 : Nav Controls + Map Rotation (90-degree steps)
-   ================================================================ */
 (function(){
-var $compassBtn   = document.getElementById("compassBtn"),
-    $compassNeedle= document.getElementById("compassNeedle"),
-    $geolocateBtn = document.getElementById("geolocateBtn"),
-    $navZoomIn    = document.getElementById("navZoomIn"),
-    $navZoomOut   = document.getElementById("navZoomOut"),
-    _geoMarker    = null,
-    _geoCircle    = null;
+var $compassBtn=document.getElementById("compassBtn"),
+    $compassNeedle=document.getElementById("compassNeedle"),
+    $geolocateBtn=document.getElementById("geolocateBtn"),
+    $navZoomIn=document.getElementById("navZoomIn"),
+    $navZoomOut=document.getElementById("navZoomOut"),
+    _geoMarker=null,_geoCircle=null;
 
-/* ---------- Leaflet Map Rotation ---------- */
-var rotPane = null;
+var rotPane=null;
 
-var _origME2CP = L.Map.prototype.mouseEventToContainerPoint;
-L.Map.prototype.mouseEventToContainerPoint = function(e){
-  var pt = _origME2CP.call(this,e);
-  var b = S.mapBearing;
-  if(!b) return pt;
-  var size = this.getSize();
-  var cx = size.x/2, cy = size.y/2;
-  var rad = -b * Math.PI/180;
-  var dx = pt.x-cx, dy = pt.y-cy;
-  return L.point(
-    cx + dx*Math.cos(rad) - dy*Math.sin(rad),
-    cy + dx*Math.sin(rad) + dy*Math.cos(rad)
-  );
+var _origME2CP=L.Map.prototype.mouseEventToContainerPoint;
+L.Map.prototype.mouseEventToContainerPoint=function(e){
+  var pt=_origME2CP.call(this,e);var b=S.mapBearing;
+  if(!b)return pt;
+  var size=this.getSize(),cx=size.x/2,cy=size.y/2,rad=-b*Math.PI/180,dx=pt.x-cx,dy=pt.y-cy;
+  return L.point(cx+dx*Math.cos(rad)-dy*Math.sin(rad),cy+dx*Math.sin(rad)+dy*Math.cos(rad));
 };
 
 function initRotPane(){
-  if(!LM) return;
-  rotPane = LM.getPane("mapPane");
-  if(rotPane){
-    rotPane.classList.add("leaflet-rotate-wrapper");
-    LM.getContainer().style.overflow = "visible";
-  }
+  if(!LM)return;rotPane=LM.getPane("mapPane");
+  if(rotPane){rotPane.classList.add("leaflet-rotate-wrapper");LM.getContainer().style.overflow="visible"}
   applyLeafletBearing(false);
 }
-
 function applyLeafletBearing(animate){
-  if(!rotPane) return;
-  if(animate===false){
-    rotPane.style.transition = "none";
-  } else {
-    rotPane.style.transition = "transform .35s cubic-bezier(.4,0,.2,1)";
-  }
-  rotPane.style.transformOrigin = "50% 50%";
-  var current = rotPane.style.transform || "";
-  current = current.replace(/\s*rotate\([^)]*\)/g, "");
-  rotPane.style.transform = current + " rotate("+S.mapBearing+"deg)";
-  if(animate===false){
-    void rotPane.offsetHeight;
-    rotPane.style.transition = "transform .35s cubic-bezier(.4,0,.2,1)";
-  }
-  if(LM) setTimeout(function(){LM.invalidateSize({animate:false})},400);
+  if(!rotPane)return;
+  rotPane.style.transition=animate===false?"none":"transform .35s cubic-bezier(.4,0,.2,1)";
+  rotPane.style.transformOrigin="50% 50%";
+  var c=rotPane.style.transform||"";c=c.replace(/\s*rotate\([^)]*\)/g,"");
+  rotPane.style.transform=c+" rotate("+S.mapBearing+"deg)";
+  if(animate===false){void rotPane.offsetHeight;rotPane.style.transition="transform .35s cubic-bezier(.4,0,.2,1)"}
+  if(LM)setTimeout(function(){LM.invalidateSize({animate:false})},400);
 }
 
-var _origBuildMap3 = buildMap;
-buildMap = function(mode){
-  rotPane = null;
-  _origBuildMap3(mode);
-  if(mode==="mercator"||mode==="plateCarree"||mode==="platecarree"){
-    initRotPane();
-  }
-};
-
+var _origBuildMap3=buildMap;
+buildMap=function(mode){rotPane=null;_origBuildMap3(mode);if(mode==="mercator"||mode==="plateCarree"||mode==="platecarree"){initRotPane()}};
 initRotPane();
+if(LM){LM.on("move zoom viewreset",function(){if(S.mapBearing&&rotPane){var c=rotPane.style.transform||"";if(c.indexOf("rotate")===-1){rotPane.style.transition="none";rotPane.style.transform=c+" rotate("+S.mapBearing+"deg)"}}})}
 
-if(LM){
-  LM.on("move zoom viewreset",function(){
-    if(S.mapBearing && rotPane){
-      var current = rotPane.style.transform || "";
-      if(current.indexOf("rotate") === -1){
-        rotPane.style.transition = "none";
-        rotPane.style.transform = current + " rotate("+S.mapBearing+"deg)";
-      }
-    }
-  });
-}
-
-/* ---------- Compass click: rotate 90 degrees ---------- */
 $compassBtn.addEventListener("click",function(){
-  if(S.view==="globe" && typeof cViewer!=="undefined" && cViewer){
-    var cam = cViewer.camera;
-    var carto = Cesium.Cartographic.fromCartesian(cam.positionWC);
-    var newHeading = cam.heading + Cesium.Math.toRadians(90);
-    cViewer.camera.flyTo({
-      destination:Cesium.Cartesian3.fromDegrees(
-        Cesium.Math.toDegrees(carto.longitude),
-        Cesium.Math.toDegrees(carto.latitude),
-        carto.height),
-      orientation:{heading:newHeading, pitch:cam.pitch, roll:0},
-      duration:0.4
-    });
-    toast("Bearing: "+Math.round(Cesium.Math.toDegrees(newHeading)%360)+"\u00b0");
-  } else if(LM){
-    S.mapBearing = (S.mapBearing + 90) % 360;
-    applyLeafletBearing(true);
-    toast("Bearing: "+S.mapBearing+"\u00b0");
-  }
+  if(S.view==="globe"&&typeof cViewer!=="undefined"&&cViewer){
+    var cam=cViewer.camera,carto=Cesium.Cartographic.fromCartesian(cam.positionWC),nh=cam.heading+Cesium.Math.toRadians(90);
+    cViewer.camera.flyTo({destination:Cesium.Cartesian3.fromDegrees(Cesium.Math.toDegrees(carto.longitude),Cesium.Math.toDegrees(carto.latitude),carto.height),orientation:{heading:nh,pitch:cam.pitch,roll:0},duration:0.4});
+    toast("Bearing: "+Math.round(Cesium.Math.toDegrees(nh)%360)+"\u00b0");
+  } else if(LM){S.mapBearing=(S.mapBearing+90)%360;applyLeafletBearing(true);toast("Bearing: "+S.mapBearing+"\u00b0")}
 });
 
-/* ---------- Compass needle update ---------- */
-function updateCompass(){
-  var heading = S.mapBearing || 0;
-  if(S.view==="globe" && typeof cViewer!=="undefined" && cViewer){
-    heading = Cesium.Math.toDegrees(cViewer.camera.heading);
-  }
-  $compassNeedle.setAttribute("transform","rotate("+(-heading)+",24,24)");
-}
+function updateCompass(){var h=S.mapBearing||0;if(S.view==="globe"&&typeof cViewer!=="undefined"&&cViewer){h=Cesium.Math.toDegrees(cViewer.camera.heading)}$compassNeedle.setAttribute("transform","rotate("+(-h)+",24,24)")}
 setInterval(updateCompass,200);
 
-/* ---------- Geolocate ---------- */
 $geolocateBtn.addEventListener("click",function(){
-  if(!navigator.geolocation){toast("Geolocation not available.");return}
-  toast("Locating\u2026");
-  navigator.geolocation.getCurrentPosition(function(pos){
-    var lat=pos.coords.latitude, lon=pos.coords.longitude, acc=pos.coords.accuracy;
-    goTo(lat,lon,14,true);
-    if(S.view!=="globe" && LM){
-      if(_geoMarker){LM.removeLayer(_geoMarker);_geoMarker=null}
-      if(_geoCircle){LM.removeLayer(_geoCircle);_geoCircle=null}
-      _geoMarker=L.circleMarker([lat,lon],{radius:8,fillColor:"#4285F4",fillOpacity:.9,
-        color:"#fff",weight:2.5}).addTo(LM)
-        .bindPopup("<b>Your location</b><br>"+fmt(lat)+", "+fmt(lon)+"<br>Accuracy: ~"+Math.round(acc)+" m");
-      _geoCircle=L.circle([lat,lon],{radius:acc,fillColor:"#4285F4",fillOpacity:.08,
-        color:"#4285F4",weight:1,dashArray:"4 6"}).addTo(LM);
-    }
-    toast("Location: "+fmt(lat,2)+", "+fmt(lon,2));
-  },function(err){toast("Geolocation error: "+err.message)},
-    {enableHighAccuracy:true,timeout:12000,maximumAge:30000});
+  if(!navigator.geolocation){toast("Geolocation not available.");return}toast("Locating\u2026");
+  navigator.geolocation.getCurrentPosition(function(pos){var lat=pos.coords.latitude,lon=pos.coords.longitude,acc=pos.coords.accuracy;goTo(lat,lon,14,true);if(S.view!=="globe"&&LM){if(_geoMarker){LM.removeLayer(_geoMarker);_geoMarker=null}if(_geoCircle){LM.removeLayer(_geoCircle);_geoCircle=null}_geoMarker=L.circleMarker([lat,lon],{radius:8,fillColor:"#4285F4",fillOpacity:.9,color:"#fff",weight:2.5}).addTo(LM).bindPopup("<b>Your location</b><br>"+fmt(lat)+", "+fmt(lon)+"<br>Accuracy: ~"+Math.round(acc)+" m");_geoCircle=L.circle([lat,lon],{radius:acc,fillColor:"#4285F4",fillOpacity:.08,color:"#4285F4",weight:1,dashArray:"4 6"}).addTo(LM)}toast("Location: "+fmt(lat,2)+", "+fmt(lon,2))},function(err){toast("Geolocation error: "+err.message)},{enableHighAccuracy:true,timeout:12000,maximumAge:30000});
 });
 
-/* ---------- Zoom +/- ---------- */
-$navZoomIn.addEventListener("click",function(){
-  if(S.view==="globe" && typeof cViewer!=="undefined" && cViewer){
-    var c=Cesium.Cartographic.fromCartesian(cViewer.camera.positionWC);
-    cViewer.camera.flyTo({destination:Cesium.Cartesian3.fromDegrees(
-      Cesium.Math.toDegrees(c.longitude),Cesium.Math.toDegrees(c.latitude),
-      Math.max(500,c.height*0.5)),duration:0.3});
-  } else if(LM){LM.zoomIn()}
-});
-$navZoomOut.addEventListener("click",function(){
-  if(S.view==="globe" && typeof cViewer!=="undefined" && cViewer){
-    var c=Cesium.Cartographic.fromCartesian(cViewer.camera.positionWC);
-    cViewer.camera.flyTo({destination:Cesium.Cartesian3.fromDegrees(
-      Cesium.Math.toDegrees(c.longitude),Cesium.Math.toDegrees(c.latitude),
-      Math.min(30000000,c.height*2)),duration:0.3});
-  } else if(LM){LM.zoomOut()}
-});
+$navZoomIn.addEventListener("click",function(){if(S.view==="globe"&&typeof cViewer!=="undefined"&&cViewer){var c=Cesium.Cartographic.fromCartesian(cViewer.camera.positionWC);cViewer.camera.flyTo({destination:Cesium.Cartesian3.fromDegrees(Cesium.Math.toDegrees(c.longitude),Cesium.Math.toDegrees(c.latitude),Math.max(500,c.height*0.5)),duration:0.3})}else if(LM){LM.zoomIn()}});
+$navZoomOut.addEventListener("click",function(){if(S.view==="globe"&&typeof cViewer!=="undefined"&&cViewer){var c=Cesium.Cartographic.fromCartesian(cViewer.camera.positionWC);cViewer.camera.flyTo({destination:Cesium.Cartesian3.fromDegrees(Cesium.Math.toDegrees(c.longitude),Cesium.Math.toDegrees(c.latitude),Math.min(30000000,c.height*2)),duration:0.3})}else if(LM){LM.zoomOut()}});
 
-window.addEventListener("resize",function(){
-  if(rotPane && S.mapBearing) applyLeafletBearing(false);
-});
+window.addEventListener("resize",function(){if(rotPane&&S.mapBearing)applyLeafletBearing(false)});
 })();
 
-/* ================================================================
-   FEATURE 2 : Profile / Transect Tool
-   ================================================================ */
 (function(){
-var $panel   = document.getElementById("profilePanel"),
-    $canvas  = document.getElementById("profileCanvas"),
-    $stats   = document.getElementById("profileStats"),
-    $prog    = document.getElementById("profileProgress"),
-    $close   = document.getElementById("profileClose"),
-    $btn     = document.getElementById("btnProfile");
-
-var active=false, step=0, ptA=null, ptB=null,
-    lineLayer=null, mkA=null, mkB=null,
-    pData=null, abortCtrl=null;
-
+var $panel=document.getElementById("profilePanel"),$canvas=document.getElementById("profileCanvas"),$stats=document.getElementById("profileStats"),$prog=document.getElementById("profileProgress"),$close=document.getElementById("profileClose"),$btn=document.getElementById("btnProfile");
+var active=false,step=0,ptA=null,ptB=null,lineLayer=null,mkA=null,mkB=null,pData=null,abortCtrl=null;
 var N_SAMPLES=80;
 
-function haversine(lat1,lon1,lat2,lon2){
-  var R=6371000,dLat=(lat2-lat1)*Math.PI/180,dLon=(lon2-lon1)*Math.PI/180;
-  var a=Math.sin(dLat/2)*Math.sin(dLat/2)+
-        Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*
-        Math.sin(dLon/2)*Math.sin(dLon/2);
-  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
-}
+function haversine(lat1,lon1,lat2,lon2){var R=6371000,dLat=(lat2-lat1)*Math.PI/180,dLon=(lon2-lon1)*Math.PI/180;var a=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)*Math.sin(dLon/2);return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a))}
 
-function clearGeo(){
-  if(!LM) return;
-  if(lineLayer){LM.removeLayer(lineLayer);lineLayer=null}
-  if(mkA){LM.removeLayer(mkA);mkA=null}
-  if(mkB){LM.removeLayer(mkB);mkB=null}
-}
+function clearGeo(){if(!LM)return;if(lineLayer){LM.removeLayer(lineLayer);lineLayer=null}if(mkA){LM.removeLayer(mkA);mkA=null}if(mkB){LM.removeLayer(mkB);mkB=null}}
 
-function reset(){
-  step=0;ptA=null;ptB=null;pData=null;
-  if(abortCtrl){try{abortCtrl.abort()}catch(e){}}
-  abortCtrl=null;
-  clearGeo();
-  $panel.classList.remove("open");
-  $stats.innerHTML="";$prog.innerHTML="";
-  document.body.classList.remove("profile-drawing");
-}
+function reset(){step=0;ptA=null;ptB=null;pData=null;if(abortCtrl){try{abortCtrl.abort()}catch(e){}}abortCtrl=null;clearGeo();$panel.classList.remove("open");$stats.innerHTML="";$prog.innerHTML="";document.body.classList.remove("profile-drawing")}
 
-function toggle(){
-  active=!active;
-  $btn.classList.toggle("profile-active",active);
-  if(active){
-    if(S.view==="globe"){
-      toast("Profile tool works in 2-D map modes only.");
-      active=false;$btn.classList.remove("profile-active");return;
-    }
-    reset();step=1;
-    document.body.classList.add("profile-drawing");
-    toast("Click the starting point (A) on the map.");
-    $panel.classList.add("open");
-    $stats.innerHTML="";
-    $prog.innerHTML='<div class="profile-instructions">Click point <b>A</b> (start) on the map, then click point <b>B</b> (end).</div>';
-    var ctx=$canvas.getContext("2d");
-    $canvas.width=$canvas.parentElement.offsetWidth*2;
-    $canvas.height=$canvas.parentElement.offsetHeight*2;
-    ctx.clearRect(0,0,$canvas.width,$canvas.height);
-  } else {
-    reset();
-  }
-}
+function toggle(){active=!active;$btn.classList.toggle("profile-active",active);if(active){if(S.view==="globe"){toast("Profile tool works in 2-D map modes only.");active=false;$btn.classList.remove("profile-active");return}reset();step=1;document.body.classList.add("profile-drawing");toast("Click the starting point (A) on the map.");$panel.classList.add("open");$stats.innerHTML="";$prog.innerHTML='<div class="profile-instructions">Click point <b>A</b> (start) on the map, then click point <b>B</b> (end).</div>';var ctx=$canvas.getContext("2d");$canvas.width=$canvas.parentElement.offsetWidth*2;$canvas.height=$canvas.parentElement.offsetHeight*2;ctx.clearRect(0,0,$canvas.width,$canvas.height)}else{reset()}}
 $btn.addEventListener("click",toggle);
 $close.addEventListener("click",function(){active=false;$btn.classList.remove("profile-active");reset()});
 
 var _origQuery=queryLeafletPoint;
-queryLeafletPoint=function(lat,lon,latlng){
-  if(active && (step===1||step===2)){
-    profileClick(lat,lon);
-    return;
-  }
-  _origQuery(lat,lon,latlng);
-};
+queryLeafletPoint=function(lat,lon,latlng){if(active&&(step===1||step===2)){profileClick(lat,lon);return}_origQuery(lat,lon,latlng)};
 
-function profileClick(lat,lon){
-  if(step===1){
-    ptA={lat:lat,lon:lon};
-    clearGeo();
-    mkA=L.circleMarker([lat,lon],{radius:7,fillColor:"#ff6644",fillOpacity:.9,
-      color:"#fff",weight:2}).addTo(LM)
-      .bindTooltip("A",{permanent:true,direction:"right"});
-    step=2;
-    toast("Now click the end point (B).");
-    $prog.innerHTML='<div class="profile-instructions">Point A set. Now click point <b>B</b> (end).</div>';
-  } else if(step===2){
-    ptB={lat:lat,lon:lon};
-    mkB=L.circleMarker([lat,lon],{radius:7,fillColor:"#44aaff",fillOpacity:.9,
-      color:"#fff",weight:2}).addTo(LM)
-      .bindTooltip("B",{permanent:true,direction:"right"});
-    lineLayer=L.polyline([[ptA.lat,ptA.lon],[lat,lon]],
-      {color:"#ff8844",weight:3,dashArray:"8 5",opacity:.85}).addTo(LM);
-    step=3;
-    document.body.classList.remove("profile-drawing");
-    toast("Sampling elevation along transect\u2026");
-    runSampling();
-  }
-}
+function profileClick(lat,lon){if(step===1){ptA={lat:lat,lon:lon};clearGeo();mkA=L.circleMarker([lat,lon],{radius:7,fillColor:"#ff6644",fillOpacity:.9,color:"#fff",weight:2}).addTo(LM).bindTooltip("A",{permanent:true,direction:"right"});step=2;toast("Now click the end point (B).");$prog.innerHTML='<div class="profile-instructions">Point A set. Now click point <b>B</b> (end).</div>'}else if(step===2){ptB={lat:lat,lon:lon};mkB=L.circleMarker([lat,lon],{radius:7,fillColor:"#44aaff",fillOpacity:.9,color:"#fff",weight:2}).addTo(LM).bindTooltip("B",{permanent:true,direction:"right"});lineLayer=L.polyline([[ptA.lat,ptA.lon],[lat,lon]],{color:"#ff8844",weight:3,dashArray:"8 5",opacity:.85}).addTo(LM);step=3;document.body.classList.remove("profile-drawing");toast("Sampling elevation along transect\u2026");runSampling()}}
 
-async function fetchGebco(lat,lon,signal){
-  var d=0.0045;
-  var bbox=[lon-d,lat-d,lon+d,lat+d].join(",");
-  var url=GEBCO_WMS+"SERVICE=WMS&VERSION=1.1.1&REQUEST=GetFeatureInfo"+
-    "&LAYERS=GEBCO_LATEST_2&QUERY_LAYERS=GEBCO_LATEST_2"+
-    "&INFO_FORMAT=text/plain&SRS=EPSG:4326&BBOX="+bbox+
-    "&WIDTH=3&HEIGHT=3&X=1&Y=1";
-  var r=await fetch(url,{cache:"no-store",signal:signal});
-  if(!r.ok) throw new Error("HTTP "+r.status);
-  var t=await r.text();
-  var z=parseGebcoText(t);
-  return Number.isFinite(z)?z:null;
-}
+async function fetchGebco(lat,lon,signal){var d=0.0045;var bbox=[lon-d,lat-d,lon+d,lat+d].join(",");var url=GEBCO_WMS+"SERVICE=WMS&VERSION=1.1.1&REQUEST=GetFeatureInfo&LAYERS=GEBCO_LATEST_2&QUERY_LAYERS=GEBCO_LATEST_2&INFO_FORMAT=text/plain&SRS=EPSG:4326&BBOX="+bbox+"&WIDTH=3&HEIGHT=3&X=1&Y=1";var r=await fetch(url,{cache:"no-store",signal:signal});if(!r.ok)throw new Error("HTTP "+r.status);var t=await r.text();var z=parseGebcoText(t);return Number.isFinite(z)?z:null}
 
-async function fetchEtopo(lat,lon,signal){
-  var lon360=lon<0?lon+360:lon;
-  var sLat=snap(lat,LAT_MIN,LAT_MAX,GRID_STEP);
-  var sLon=snap(lon360,LON_MIN_360,LON_MAX_360,GRID_STEP);
-  var url=ETOPO_CSV+"?z%5B("+sLat.toFixed(10)+"):1:("+sLat.toFixed(10)+
-    ")%5D%5B("+sLon.toFixed(10)+"):1:("+sLon.toFixed(10)+")%5D";
-  var r=await fetch(url,{cache:"no-store",signal:signal});
-  if(!r.ok) throw new Error("ETOPO HTTP "+r.status);
-  var txt=await r.text();
-  var lines=txt.trim().split(/\r?\n/).filter(Boolean);
-  if(lines.length<2) return null;
-  var hdr=splitCsv(lines[0]).map(function(s){return s.trim()});
-  var zi=hdr.indexOf("z"); if(zi<0) return null;
-  for(var i=1;i<lines.length;i++){
-    var v=splitCsv(lines[i]);
-    if(v.length===hdr.length && /^-?\d+(\.\d+)?([eE][+-]?\d+)?$/.test(v[zi].trim()))
-      return Number(v[zi]);
-  }
-  return null;
-}
+async function fetchEtopo(lat,lon,signal){var lon360=lon<0?lon+360:lon;var sLat=snap(lat,LAT_MIN,LAT_MAX,GRID_STEP);var sLon=snap(lon360,LON_MIN_360,LON_MAX_360,GRID_STEP);var url=ETOPO_CSV+"?z%5B("+sLat.toFixed(10)+"):1:("+sLat.toFixed(10)+")%5D%5B("+sLon.toFixed(10)+"):1:("+sLon.toFixed(10)+")%5D";var r=await fetch(url,{cache:"no-store",signal:signal});if(!r.ok)throw new Error("ETOPO HTTP "+r.status);var txt=await r.text();var lines=txt.trim().split(/\r?\n/).filter(Boolean);if(lines.length<2)return null;var hdr=splitCsv(lines[0]).map(function(s){return s.trim()});var zi=hdr.indexOf("z");if(zi<0)return null;for(var i=1;i<lines.length;i++){var v=splitCsv(lines[i]);if(v.length===hdr.length&&/^-?\d+(\.\d+)?([eE][+-]?\d+)?$/.test(v[zi].trim()))return Number(v[zi])}return null}
 
-async function runSampling(){
-  abortCtrl=new AbortController();
-  var sig=abortCtrl.signal;
-  var totalDist=haversine(ptA.lat,ptA.lon,ptB.lat,ptB.lon);
-  var samples=[],failed=0;
+async function runSampling(){abortCtrl=new AbortController();var sig=abortCtrl.signal;var totalDist=haversine(ptA.lat,ptA.lon,ptB.lat,ptB.lon);var samples=[],failed=0;for(var i=0;i<=N_SAMPLES;i++){if(sig.aborted)return;var t=i/N_SAMPLES;var lat=ptA.lat+(ptB.lat-ptA.lat)*t;var lon=ptA.lon+(ptB.lon-ptA.lon)*t;var dist=totalDist*t;$prog.textContent="Sampling "+(i+1)+"/"+(N_SAMPLES+1)+"\u2026";var z=null;try{z=await fetchGebco(lat,lon,sig)}catch(e){}if(z===null||!Number.isFinite(z)){try{z=await fetchEtopo(lat,lon,sig)}catch(e2){}}if(z===null||!Number.isFinite(z)){failed++;z=null}samples.push({t:t,lat:lat,lon:lon,dist:dist,z:z})}if(sig.aborted)return;for(var j=0;j<samples.length;j++){if(samples[j].z!==null)continue;var prev=null,next=null;for(var p=j-1;p>=0;p--){if(samples[p].z!==null){prev=samples[p].z;break}}for(var n=j+1;n<samples.length;n++){if(samples[n].z!==null){next=samples[n].z;break}}if(prev!==null&&next!==null)samples[j].z=(prev+next)/2;else if(prev!==null)samples[j].z=prev;else if(next!==null)samples[j].z=next;else samples[j].z=0}pData=samples;$prog.textContent=failed>0?failed+" of "+(N_SAMPLES+1)+" samples interpolated.":"All "+(N_SAMPLES+1)+" samples retrieved.";drawChart();showStats(totalDist)}
 
-  for(var i=0;i<=N_SAMPLES;i++){
-    if(sig.aborted) return;
-    var t=i/N_SAMPLES;
-    var lat=ptA.lat+(ptB.lat-ptA.lat)*t;
-    var lon=ptA.lon+(ptB.lon-ptA.lon)*t;
-    var dist=totalDist*t;
-    $prog.textContent="Sampling "+(i+1)+"/"+(N_SAMPLES+1)+"\u2026";
+function drawChart(){if(!pData||!pData.length)return;var wrap=$canvas.parentElement;var dpr=window.devicePixelRatio||1;var W=wrap.offsetWidth,H=wrap.offsetHeight;$canvas.width=W*dpr;$canvas.height=H*dpr;$canvas.style.width=W+"px";$canvas.style.height=H+"px";var ctx=$canvas.getContext("2d");ctx.scale(dpr,dpr);var pad={top:24,right:18,bottom:32,left:58};var cw=W-pad.left-pad.right,ch=H-pad.top-pad.bottom;var zArr=pData.map(function(s){return s.z});var zMin=Math.min.apply(null,zArr),zMax=Math.max.apply(null,zArr);if(zMin>0)zMin=-10;if(zMax<0)zMax=10;var zR=zMax-zMin;zMin-=zR*.08;zMax+=zR*.08;var maxD=pData[pData.length-1].dist;function xP(d){return pad.left+d/maxD*cw}function yP(z){return pad.top+(1-(z-zMin)/(zMax-zMin))*ch}ctx.fillStyle="rgba(4,10,20,.9)";ctx.fillRect(0,0,W,H);ctx.strokeStyle="rgba(125,190,235,.1)";ctx.lineWidth=0.5;var nY=6;for(var g=0;g<=nY;g++){var gy=pad.top+ch*g/nY;ctx.beginPath();ctx.moveTo(pad.left,gy);ctx.lineTo(pad.left+cw,gy);ctx.stroke()}var y0=yP(0);if(y0>=pad.top&&y0<=pad.top+ch){ctx.fillStyle="rgba(25,85,155,.1)";ctx.fillRect(pad.left,y0,cw,pad.top+ch-y0);ctx.save();ctx.setLineDash([6,4]);ctx.strokeStyle="rgba(80,160,240,.55)";ctx.lineWidth=1.3;ctx.beginPath();ctx.moveTo(pad.left,y0);ctx.lineTo(pad.left+cw,y0);ctx.stroke();ctx.restore();ctx.fillStyle="rgba(80,160,240,.75)";ctx.font="10px "+getComputedStyle(document.body).fontFamily;ctx.textAlign="left";ctx.fillText("Sea level (0 m)",pad.left+4,y0-4)}ctx.beginPath();ctx.moveTo(xP(pData[0].dist),yP(pData[0].z));for(var i=1;i<pData.length;i++)ctx.lineTo(xP(pData[i].dist),yP(pData[i].z));ctx.lineTo(xP(pData[pData.length-1].dist),yP(zMin));ctx.lineTo(xP(pData[0].dist),yP(zMin));ctx.closePath();var seaFrac=Math.max(0,Math.min(1,zMax/(zMax-zMin)));var grad=ctx.createLinearGradient(0,pad.top,0,pad.top+ch);grad.addColorStop(0,"rgba(120,175,75,.35)");grad.addColorStop(seaFrac,"rgba(55,125,55,.18)");grad.addColorStop(seaFrac,"rgba(40,100,180,.22)");grad.addColorStop(1,"rgba(18,55,110,.4)");ctx.fillStyle=grad;ctx.fill();ctx.beginPath();ctx.moveTo(xP(pData[0].dist),yP(pData[0].z));for(var i=1;i<pData.length;i++)ctx.lineTo(xP(pData[i].dist),yP(pData[i].z));ctx.strokeStyle="rgba(255,175,70,.9)";ctx.lineWidth=2;ctx.stroke();ctx.fillStyle="rgba(180,210,235,.65)";ctx.font="10px "+getComputedStyle(document.body).fontFamily;ctx.textAlign="right";for(var g=0;g<=nY;g++){var gzl=zMin+(zMax-zMin)*(nY-g)/nY;ctx.fillText(Math.round(gzl)+" m",pad.left-6,pad.top+ch*g/nY+3)}ctx.textAlign="center";var nX=5;for(var gx=0;gx<=nX;gx++){var gd=maxD*gx/nX;var lbl=maxD>5000?(gd/1000).toFixed(1)+" km":Math.round(gd)+" m";ctx.fillText(lbl,xP(gd),pad.top+ch+16)}ctx.fillStyle="rgba(155,215,255,.55)";ctx.font="bold 10px "+getComputedStyle(document.body).fontFamily;ctx.textAlign="center";ctx.fillText("Distance",pad.left+cw/2,H-3);ctx.save();ctx.translate(13,pad.top+ch/2);ctx.rotate(-Math.PI/2);ctx.fillText("Elevation (m)",0,0);ctx.restore();ctx.font="bold 11px "+getComputedStyle(document.body).fontFamily;ctx.textAlign="center";ctx.fillStyle="#ff6644";ctx.fillText("A",xP(0),pad.top-7);ctx.fillStyle="#44aaff";ctx.fillText("B",xP(maxD),pad.top-7)}
 
-    var z=null;
-    try{ z=await fetchGebco(lat,lon,sig) }catch(e){}
-    if(z===null||!Number.isFinite(z)){
-      try{ z=await fetchEtopo(lat,lon,sig) }catch(e2){}
-    }
-    if(z===null||!Number.isFinite(z)){failed++;z=null}
-    samples.push({t:t,lat:lat,lon:lon,dist:dist,z:z});
-  }
-  if(sig.aborted) return;
+function showStats(totalDist){var zArr=pData.map(function(s){return s.z});var mn=Math.min.apply(null,zArr),mx=Math.max.apply(null,zArr);var nm=totalDist/1852;$stats.innerHTML='<div><span class="stat-label">Distance:</span><span class="stat-value">'+(totalDist>=1000?(totalDist/1000).toFixed(2)+" km":Math.round(totalDist)+" m")+" &nbsp;|&nbsp; "+nm.toFixed(2)+" NM &nbsp;|&nbsp; "+Math.round(totalDist).toLocaleString()+' m</span></div><div><span class="stat-label">Min elev:</span><span class="stat-value">'+Math.round(mn).toLocaleString()+' m</span></div><div><span class="stat-label">Max elev:</span><span class="stat-value">'+Math.round(mx).toLocaleString()+' m</span></div><div><span class="stat-label">Elev range:</span><span class="stat-value">'+Math.round(mx-mn).toLocaleString()+" m</span></div>"}
 
-  for(var j=0;j<samples.length;j++){
-    if(samples[j].z!==null) continue;
-    var prev=null,next=null;
-    for(var p=j-1;p>=0;p--){if(samples[p].z!==null){prev=samples[p].z;break}}
-    for(var n=j+1;n<samples.length;n++){if(samples[n].z!==null){next=samples[n].z;break}}
-    if(prev!==null && next!==null) samples[j].z=(prev+next)/2;
-    else if(prev!==null) samples[j].z=prev;
-    else if(next!==null) samples[j].z=next;
-    else samples[j].z=0;
-  }
-
-  pData=samples;
-  $prog.textContent=failed>0?
-    failed+" of "+(N_SAMPLES+1)+" samples interpolated.":
-    "All "+(N_SAMPLES+1)+" samples retrieved.";
-  drawChart();
-  showStats(totalDist);
-}
-
-function drawChart(){
-  if(!pData||!pData.length) return;
-  var wrap=$canvas.parentElement;
-  var dpr=window.devicePixelRatio||1;
-  var W=wrap.offsetWidth, H=wrap.offsetHeight;
-  $canvas.width=W*dpr; $canvas.height=H*dpr;
-  $canvas.style.width=W+"px"; $canvas.style.height=H+"px";
-  var ctx=$canvas.getContext("2d");
-  ctx.scale(dpr,dpr);
-
-  var pad={top:24,right:18,bottom:32,left:58};
-  var cw=W-pad.left-pad.right, ch=H-pad.top-pad.bottom;
-
-  var zArr=pData.map(function(s){return s.z});
-  var zMin=Math.min.apply(null,zArr), zMax=Math.max.apply(null,zArr);
-  if(zMin>0) zMin=-10;
-  if(zMax<0) zMax=10;
-  var zR=zMax-zMin; zMin-=zR*.08; zMax+=zR*.08;
-  var maxD=pData[pData.length-1].dist;
-
-  function xP(d){return pad.left+d/maxD*cw}
-  function yP(z){return pad.top+(1-(z-zMin)/(zMax-zMin))*ch}
-
-  ctx.fillStyle="rgba(4,10,20,.9)"; ctx.fillRect(0,0,W,H);
-
-  ctx.strokeStyle="rgba(125,190,235,.1)"; ctx.lineWidth=0.5;
-  var nY=6;
-  for(var g=0;g<=nY;g++){
-    var gy=pad.top+ch*g/nY;
-    ctx.beginPath();ctx.moveTo(pad.left,gy);ctx.lineTo(pad.left+cw,gy);ctx.stroke();
-  }
-
-  var y0=yP(0);
-  if(y0>=pad.top && y0<=pad.top+ch){
-    ctx.fillStyle="rgba(25,85,155,.1)";
-    ctx.fillRect(pad.left,y0,cw,pad.top+ch-y0);
-    ctx.save();ctx.setLineDash([6,4]);
-    ctx.strokeStyle="rgba(80,160,240,.55)";ctx.lineWidth=1.3;
-    ctx.beginPath();ctx.moveTo(pad.left,y0);ctx.lineTo(pad.left+cw,y0);ctx.stroke();
-    ctx.restore();
-    ctx.fillStyle="rgba(80,160,240,.75)";
-    ctx.font="10px "+getComputedStyle(document.body).fontFamily;
-    ctx.textAlign="left";
-    ctx.fillText("Sea level (0 m)",pad.left+4,y0-4);
-  }
-
-  ctx.beginPath();
-  ctx.moveTo(xP(pData[0].dist),yP(pData[0].z));
-  for(var i=1;i<pData.length;i++) ctx.lineTo(xP(pData[i].dist),yP(pData[i].z));
-  ctx.lineTo(xP(pData[pData.length-1].dist),yP(zMin));
-  ctx.lineTo(xP(pData[0].dist),yP(zMin));
-  ctx.closePath();
-
-  var seaFrac=Math.max(0,Math.min(1,zMax/(zMax-zMin)));
-  var grad=ctx.createLinearGradient(0,pad.top,0,pad.top+ch);
-  grad.addColorStop(0,"rgba(120,175,75,.35)");
-  grad.addColorStop(seaFrac,"rgba(55,125,55,.18)");
-  grad.addColorStop(seaFrac,"rgba(40,100,180,.22)");
-  grad.addColorStop(1,"rgba(18,55,110,.4)");
-  ctx.fillStyle=grad; ctx.fill();
-
-  ctx.beginPath();
-  ctx.moveTo(xP(pData[0].dist),yP(pData[0].z));
-  for(var i=1;i<pData.length;i++) ctx.lineTo(xP(pData[i].dist),yP(pData[i].z));
-  ctx.strokeStyle="rgba(255,175,70,.9)";ctx.lineWidth=2;ctx.stroke();
-
-  ctx.fillStyle="rgba(180,210,235,.65)";
-  ctx.font="10px "+getComputedStyle(document.body).fontFamily;
-  ctx.textAlign="right";
-  for(var g=0;g<=nY;g++){
-    var gzl=zMin+(zMax-zMin)*(nY-g)/nY;
-    ctx.fillText(Math.round(gzl)+" m",pad.left-6,pad.top+ch*g/nY+3);
-  }
-
-  ctx.textAlign="center";
-  var nX=5;
-  for(var gx=0;gx<=nX;gx++){
-    var gd=maxD*gx/nX;
-    var lbl=maxD>5000?(gd/1000).toFixed(1)+" km":Math.round(gd)+" m";
-    ctx.fillText(lbl,xP(gd),pad.top+ch+16);
-  }
-
-  ctx.fillStyle="rgba(155,215,255,.55)";
-  ctx.font="bold 10px "+getComputedStyle(document.body).fontFamily;
-  ctx.textAlign="center";
-  ctx.fillText("Distance",pad.left+cw/2,H-3);
-  ctx.save();ctx.translate(13,pad.top+ch/2);ctx.rotate(-Math.PI/2);
-  ctx.fillText("Elevation (m)",0,0);ctx.restore();
-
-  ctx.font="bold 11px "+getComputedStyle(document.body).fontFamily;
-  ctx.textAlign="center";
-  ctx.fillStyle="#ff6644"; ctx.fillText("A",xP(0),pad.top-7);
-  ctx.fillStyle="#44aaff"; ctx.fillText("B",xP(maxD),pad.top-7);
-}
-
-function showStats(totalDist){
-  var zArr=pData.map(function(s){return s.z});
-  var mn=Math.min.apply(null,zArr), mx=Math.max.apply(null,zArr);
-  var nm=totalDist/1852;
-  $stats.innerHTML=
-    '<div><span class="stat-label">Distance:</span><span class="stat-value">'+
-      (totalDist>=1000?(totalDist/1000).toFixed(2)+" km":Math.round(totalDist)+" m")+
-      " &nbsp;|&nbsp; "+nm.toFixed(2)+" NM &nbsp;|&nbsp; "+
-      Math.round(totalDist).toLocaleString()+" m</span></div>"+
-    '<div><span class="stat-label">Min elev:</span><span class="stat-value">'+
-      Math.round(mn).toLocaleString()+" m</span></div>"+
-    '<div><span class="stat-label">Max elev:</span><span class="stat-value">'+
-      Math.round(mx).toLocaleString()+" m</span></div>"+
-    '<div><span class="stat-label">Elev range:</span><span class="stat-value">'+
-      Math.round(mx-mn).toLocaleString()+" m</span></div>";
-}
-
-window.addEventListener("resize",function(){
-  if(pData && $panel.classList.contains("open")) setTimeout(drawChart,120);
-});
+window.addEventListener("resize",function(){if(pData&&$panel.classList.contains("open"))setTimeout(drawChart,120)});
 })();
 
 
