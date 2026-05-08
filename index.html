@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<!--
+World Bathymetry Explorer
+SPDX-License-Identifier: GPL-3.0-or-later
+Copyright (C) 2026 Bathymetry Explorer contributors
+
+Application code is licensed under GNU GPL-3.0-or-later. See LICENSE.
+Third-party map data, chart data, bathymetry services, tiles, libraries and basemaps remain under their own licences and terms. See ATTRIBUTION.md.
+Not for navigation or safety-at-sea use.
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>World Bathymetry Explorer</title>
+<meta name="description" content="A browser-based bathymetry, nautical chart, contour and 3D globe explorer using public GEBCO, NOAA, OpenSeaMap, Esri and EMODnet services." />
+<meta name="license" content="GPL-3.0-or-later" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+:root{--ui-font-scale:1;--ui-font-family:"Segoe UI Condensed","Segoe UI Semicondensed","Segoe UI",Arial,sans-serif;--ui-letter-tighten:-0.3px}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;height:100%}
+body{height:100%;font-family:var(--ui-font-family);font-stretch:87.5%;letter-spacing:var(--ui-letter-tighten);background:#07111d;color:#c9d9e8;overflow:hidden;position:fixed;width:100%}
+#map,#cesiumContainer{position:absolute;inset:0;width:100vw;height:100vh;background:#07111d;touch-action:manipulation;will-change:transform}
+#cesiumContainer{display:none;z-index:1}
+#map{z-index:1}
+button,input,select{font-family:var(--ui-font-family);font-stretch:87.5%;letter-spacing:var(--ui-letter-tighten);-webkit-tap-highlight-color:transparent}
+button{cursor:pointer}
+a{color:#8cc8f2}
+.leaflet-control-layers,.leaflet-popup-content,#cesiumPopup,.depth-card,.loading-overlay{font-family:var(--ui-font-family)!important;font-stretch:87.5%;letter-spacing:var(--ui-letter-tighten)}
+.title-bar{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:1100;background:rgba(6,14,25,.88);border:1px solid rgba(125,190,235,.25);backdrop-filter:blur(12px);border-radius:14px;padding:9px 22px;text-align:center;box-shadow:0 6px 24px rgba(0,0,0,.45);pointer-events:none}
+.title-bar h1{font-size:calc(17px * var(--ui-font-scale));line-height:1.1;color:#9bd7ff;font-weight:650;letter-spacing:.4px}.title-bar .subtitle{font-size:calc(10px * var(--ui-font-scale));color:#7fa9c2;margin-top:3px;letter-spacing:1.5px;text-transform:uppercase}
+.search-box{position:fixed;top:12px;right:14px;z-index:1100;display:flex;box-shadow:0 4px 18px rgba(0,0,0,.35)}
+.search-box input{background:rgba(6,14,25,.94);border:1px solid rgba(125,190,235,.28);border-right:none;color:#d9efff;border-radius:10px 0 0 10px;padding:9px 12px;font-size:calc(13px * var(--ui-font-scale));min-width:220px;outline:none}.search-box input:focus{border-color:rgba(125,190,235,.65)}.search-box button{background:rgba(24,74,118,.94);border:1px solid rgba(125,190,235,.28);color:#d9efff;border-radius:0 10px 10px 0;padding:8px 12px;font-size:calc(13px * var(--ui-font-scale));min-width:42px}
+.info-panel{position:fixed;top:84px;left:12px;z-index:1100;max-width:335px}.info-toggle,.qv-toggle{background:rgba(6,14,25,.92);border:1px solid rgba(125,190,235,.28);border-radius:10px;color:#9bd7ff;padding:8px 12px;font-size:calc(12px * var(--ui-font-scale));min-height:36px}.info-content{display:none;margin-top:6px;max-height:58vh;overflow:auto;background:rgba(6,14,25,.95);border:1px solid rgba(125,190,235,.22);border-radius:12px;padding:13px 15px;font-size:calc(12px * var(--ui-font-scale));line-height:1.55;color:#c7d8e6;box-shadow:0 8px 30px rgba(0,0,0,.42)}.info-content.open{display:block}.info-content h3{font-size:calc(13px * var(--ui-font-scale));color:#9bd7ff;margin:9px 0 4px}.info-content h3:first-child{margin-top:0}.info-content ul{padding-left:16px;margin:4px 0}.fineprint{font-size:calc(11px * var(--ui-font-scale));color:#9fb0bd;margin-top:6px}.warning{color:#e0c47a}
+.quickview-panel{position:fixed;top:123px;left:12px;z-index:1090;max-width:350px}.quickview-panel.hidden{display:none}.qv-toggle{border-color:rgba(230,190,110,.32);color:#e8c878}.qv-list{display:none;margin-top:6px;background:rgba(6,14,25,.94);border:1px solid rgba(230,190,110,.24);border-radius:12px;padding:8px;gap:5px;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.35)}.qv-list.open{display:flex}.qv-btn{border:1px solid rgba(230,190,110,.25);background:rgba(71,55,25,.72);color:#e8c878;border-radius:999px;padding:5px 10px;font-size:calc(10px * var(--ui-font-scale));min-height:28px;white-space:nowrap}.qv-btn:hover{background:rgba(103,79,32,.82);color:#fff0c5}
+.coord-display{position:fixed;left:10px;bottom:9px;z-index:1100;background:rgba(6,14,25,.88);border:1px solid rgba(125,190,235,.24);border-radius:10px;color:#9bd7ff;padding:6px 12px;font-size:calc(12px * var(--ui-font-scale));font-family:var(--ui-font-family);font-variant-numeric:tabular-nums;box-shadow:0 4px 14px rgba(0,0,0,.35)}
+.toast{position:fixed;top:63px;left:50%;transform:translateX(-50%);z-index:1300;background:rgba(6,14,25,.94);border:1px solid rgba(230,190,110,.35);border-radius:10px;color:#e8c878;padding:8px 16px;font-size:calc(12px * var(--ui-font-scale));opacity:0;pointer-events:none;transition:opacity .25s;box-shadow:0 6px 22px rgba(0,0,0,.45)}.toast.show{opacity:1}
+.projection-notice{display:none;position:fixed;top:64px;left:50%;transform:translateX(-50%);z-index:1100;background:rgba(6,14,25,.9);border:1px solid rgba(230,190,110,.32);border-radius:10px;color:#e0c47a;padding:6px 14px;font-size:calc(11px * var(--ui-font-scale));pointer-events:none}.projection-notice.active{display:block}
+.bottom-controls{position:fixed;left:50%;bottom:12px;transform:translateX(-50%);z-index:1120;display:flex;flex-direction:column;align-items:center;gap:6px;transition:transform .25s,opacity .25s}.bottom-controls.collapsed{transform:translate(-50%,115%);opacity:0;pointer-events:none}.control-pill{display:flex;background:rgba(6,14,25,.92);border:1px solid rgba(125,190,235,.25);border-radius:999px;overflow:hidden;box-shadow:0 6px 22px rgba(0,0,0,.45)}.control-pill button{border:0;border-right:1px solid rgba(125,190,235,.14);background:transparent;color:#7ba7c2;padding:8px 14px;font-size:calc(11px * var(--ui-font-scale));min-height:38px}.control-pill button:last-child{border-right:0}.control-pill button:hover{background:rgba(30,73,106,.55)}.control-pill button.active{background:linear-gradient(135deg,rgba(42,108,166,.95),rgba(24,76,127,.95));color:#eef9ff;font-weight:650}.control-pill button.secondary-active{background:rgba(90,72,28,.92);color:#ffe2a0;font-weight:650}.collapse-btn{background:rgba(6,14,25,.92)!important;color:#8fb3c7!important;padding:8px 10px!important}
+.controls-tab{display:none;position:fixed;left:50%;bottom:12px;transform:translateX(-50%);z-index:1121;background:rgba(6,14,25,.94);border:1px solid rgba(125,190,235,.3);border-radius:999px;color:#d9efff;padding:10px 18px;box-shadow:0 6px 24px rgba(0,0,0,.45)}.controls-tab.show{display:block}
+.opacity-panel{background:rgba(6,14,25,.92);border:1px solid rgba(125,190,235,.25);border-radius:16px;box-shadow:0 6px 22px rgba(0,0,0,.45);padding:8px 12px;width:362px;display:grid;grid-template-columns:1fr;gap:6px}.opacity-row{display:grid;grid-template-columns:96px 1fr 44px auto;align-items:center;gap:8px}.opacity-row label{font-size:calc(10px * var(--ui-font-scale));text-transform:uppercase;letter-spacing:.8px;color:#9bd7ff}.opacity-row.contours label{color:#e8c878}.opacity-row.nautical label{color:#b5e9c8}.opacity-row input[type=range]{width:100%;height:6px;accent-color:#5aa8e6}.opacity-row.contours input[type=range]{accent-color:#e1b85f}.opacity-row.nautical input[type=range]{accent-color:#6fc68f}.opacity-value{font-size:calc(11px * var(--ui-font-scale));font-family:var(--ui-font-family);font-variant-numeric:tabular-nums;color:#dcefff;text-align:right}.hide-dot{width:8px;height:8px;border-radius:50%;background:#ef6f6f;display:none}.hide-dot.on{display:block;animation:pulse 1.5s ease-in-out infinite}@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.action-row{display:flex;gap:5px;justify-content:center}.action-row button{background:rgba(31,66,98,.82);border:1px solid rgba(125,190,235,.24);color:#cdeeff;border-radius:999px;padding:5px 10px;font-size:calc(10px * var(--ui-font-scale));min-height:28px}.action-row button:hover{background:rgba(47,94,135,.9)}.font-row{display:grid;grid-template-columns:96px auto 1fr auto 44px;align-items:center;gap:8px}.font-row label{font-size:calc(10px * var(--ui-font-scale));text-transform:uppercase;letter-spacing:.8px;color:#d8e8ff}.font-row input[type=range]{width:100%;height:6px;accent-color:#d8e8ff}.font-row button{background:rgba(31,66,98,.82);border:1px solid rgba(125,190,235,.24);color:#dff4ff;border-radius:999px;padding:4px 8px;font-size:calc(11px * var(--ui-font-scale));min-width:32px;min-height:28px}.font-row button:hover{background:rgba(47,94,135,.9)}
+.minimap-container{position:fixed;right:12px;bottom:12px;z-index:1080;width:160px;height:118px;border:2px solid rgba(125,190,235,.28);border-radius:10px;overflow:hidden;box-shadow:0 5px 22px rgba(0,0,0,.45)}.minimap-container.hidden{display:none}#minimap{width:100%;height:100%}
+.depth-card{position:fixed;right:14px;bottom:146px;z-index:1100;max-width:360px;background:rgba(6,14,25,.92);border:1px solid rgba(125,190,235,.24);border-radius:14px;padding:12px 14px;color:#d2e3f0;font-size:calc(12px * var(--ui-font-scale));line-height:1.5;box-shadow:0 7px 26px rgba(0,0,0,.48)}.depth-card strong{color:#9bd7ff}.depth-card .value{display:block;font-size:calc(22px * var(--ui-font-scale));line-height:1.2;color:#eef9ff;font-weight:700;margin:4px 0}.depth-card .small{font-size:calc(10.5px * var(--ui-font-scale));color:#9fb0bd}.depth-card.hidden{display:none}.depth-close{position:absolute;top:5px;right:7px;background:transparent;border:0;color:#81a8bd;font-size:calc(18px * var(--ui-font-scale));line-height:1}
+#cesiumPopup{display:none;position:fixed;z-index:1500;background:rgba(6,14,25,.96);border:1px solid rgba(125,190,235,.28);border-radius:12px;color:#d2e3f0;padding:12px 15px;font-size:calc(12px * var(--ui-font-scale));box-shadow:0 7px 28px rgba(0,0,0,.55);max-width:310px;line-height:1.45}#cesiumPopup b,#cesiumPopup strong{color:#9bd7ff}#cesiumPopup .close-btn{position:absolute;right:7px;top:4px;border:0;background:transparent;color:#81a8bd;font-size:calc(18px * var(--ui-font-scale))}
+.loading-overlay{display:none;position:fixed;inset:0;background:rgba(4,9,16,.96);z-index:2500;align-items:center;justify-content:center;flex-direction:column;gap:14px}.loading-overlay.active{display:flex}.loading-spinner{width:46px;height:46px;border:4px solid rgba(125,190,235,.15);border-top-color:#9bd7ff;border-radius:50%;animation:spin .85s linear infinite}.loading-spinner.error{border-top-color:#ef7777;animation:none}@keyframes spin{to{transform:rotate(360deg)}}.loading-text{color:#9bd7ff;font-size:calc(14px * var(--ui-font-scale));text-align:center}.loading-text.error{color:#ef9999}.loading-detail{color:#8ca5b8;font-size:calc(11px * var(--ui-font-scale));max-width:420px;text-align:center;line-height:1.5}.return-btn{margin-top:8px;border:1px solid rgba(125,190,235,.28);background:rgba(24,74,118,.9);border-radius:10px;color:#dff4ff;padding:9px 20px}
+.leaflet-container{background:#07111d!important}.leaflet-control-layers{background:rgba(6,14,25,.94)!important;border:1px solid rgba(125,190,235,.28)!important;color:#d2e3f0!important;border-radius:10px!important;backdrop-filter:blur(10px)}.leaflet-control-layers label{color:#d2e3f0!important;font-size:calc(12px * var(--ui-font-scale))}.leaflet-control-layers-toggle{background-color:rgba(6,14,25,.94)!important;border-radius:10px!important}.leaflet-control-zoom a{background:rgba(6,14,25,.94)!important;color:#9bd7ff!important;border-color:rgba(125,190,235,.25)!important}.leaflet-control-scale-line{background:rgba(6,14,25,.84)!important;color:#9bd7ff!important;border-color:rgba(125,190,235,.38)!important}.leaflet-popup-content-wrapper{background:rgba(6,14,25,.96)!important;color:#d2e3f0!important;border:1px solid rgba(125,190,235,.28)!important;border-radius:12px!important}.leaflet-popup-tip{background:rgba(6,14,25,.96)!important}.leaflet-popup-content{font-family:var(--ui-font-family);font-size:calc(12px * var(--ui-font-scale));line-height:1.45}.leaflet-popup-content b,.leaflet-popup-content strong{color:#9bd7ff}.cesium-viewer-bottom{opacity:.45;font-size:calc(10px * var(--ui-font-scale))!important}
+
+.ui-show-button{display:none;position:fixed;right:12px;bottom:12px;z-index:3000;background:rgba(6,14,25,.95);border:1px solid rgba(125,190,235,.36);border-radius:999px;color:#dff4ff;padding:10px 16px;font-size:calc(12px * var(--ui-font-scale));box-shadow:0 6px 24px rgba(0,0,0,.48)}
+body.ui-hidden .title-bar,body.ui-hidden .search-box,body.ui-hidden .info-panel,body.ui-hidden .quickview-panel,body.ui-hidden .bottom-controls,body.ui-hidden .controls-tab,body.ui-hidden .coord-display,body.ui-hidden .depth-card,body.ui-hidden #cesiumPopup,body.ui-hidden .projection-notice,body.ui-hidden .minimap-container,body.ui-hidden .toast,body.ui-hidden .leaflet-control-container{display:none!important}
+body.ui-hidden .ui-show-button{display:block}
+.globe-align-row{display:none;grid-template-columns:96px repeat(4,1fr);align-items:center;gap:6px;border-top:1px solid rgba(125,190,235,.14);padding-top:6px;margin-top:2px}.globe-align-row label{font-size:calc(10px * var(--ui-font-scale));text-transform:uppercase;letter-spacing:.8px;color:#d8e8ff}.globe-align-row button{background:rgba(31,66,98,.82);border:1px solid rgba(125,190,235,.24);color:#dff4ff;border-radius:999px;padding:5px 8px;font-size:calc(10px * var(--ui-font-scale));min-height:28px}.globe-align-row button:hover{background:rgba(47,94,135,.9)}body.is-globe-view .globe-align-row{display:grid}
+body.ui-hidden .cesium-viewer-bottom{display:none!important}
+
+@media(max-width:900px){.title-bar{left:12px;right:12px;transform:none;padding:7px 12px}.title-bar h1{font-size:calc(14px * var(--ui-font-scale))}.title-bar .subtitle{display:none}.search-box{top:50px;left:8px;right:8px}.search-box input{min-width:0;width:100%;font-size:calc(16px * var(--ui-font-scale));padding:10px 12px}.search-box button{min-height:44px}.info-panel{top:101px;left:8px;max-width:260px}.quickview-panel{top:145px;left:8px;max-width:260px}.info-toggle,.qv-toggle{min-height:42px}.info-content{max-height:42vh;font-size:calc(11px * var(--ui-font-scale))}.bottom-controls{bottom:calc(8px + env(safe-area-inset-bottom));width:calc(100% - 14px);max-width:420px}.control-pill{width:100%;justify-content:center}.control-pill button{flex:1;padding:10px 8px;font-size:calc(10px * var(--ui-font-scale));min-height:44px}.collapse-btn{flex:0 0 auto!important}.opacity-panel{width:100%;padding:7px 9px}.opacity-row{grid-template-columns:84px 1fr 40px 10px;gap:6px}.font-row{grid-template-columns:84px auto 1fr auto 40px;gap:6px}.globe-align-row{grid-template-columns:84px repeat(4,1fr);gap:5px}.opacity-row label,.font-row label{font-size:calc(9px * var(--ui-font-scale))}.opacity-row input[type=range]{height:10px}.action-row button{min-height:32px}.minimap-container{display:none}.depth-card{right:8px;left:8px;bottom:205px;max-width:none;font-size:calc(11px * var(--ui-font-scale))}.coord-display{font-size:calc(10px * var(--ui-font-scale));left:7px;bottom:4px}.toast{left:8px;right:8px;transform:none;text-align:center}.projection-notice{left:8px;right:8px;top:92px;transform:none;text-align:center}.leaflet-control-layers{max-height:48vh;overflow:auto;max-width:250px}.leaflet-control-zoom a{width:38px!important;height:38px!important;line-height:38px!important}.controls-tab{bottom:calc(10px + env(safe-area-inset-bottom));min-height:44px}}
+@media(max-width:480px){.title-bar h1{font-size:calc(12px * var(--ui-font-scale))}.info-panel,.quickview-panel{max-width:210px}.qv-btn{font-size:calc(10px * var(--ui-font-scale));padding:6px 9px}.opacity-row{grid-template-columns:76px 1fr 36px 9px}.font-row{grid-template-columns:76px auto 1fr auto 36px;gap:5px}.globe-align-row{grid-template-columns:76px repeat(4,1fr);gap:4px}.action-row button,.font-row button{font-size:calc(9px * var(--ui-font-scale));padding:5px 7px}.depth-card{bottom:218px}.control-pill button{font-size:calc(9px * var(--ui-font-scale));padding-left:5px;padding-right:5px}}
+
+/* === Nav Controls Stack (Google-Maps style) === */
+.nav-controls{position:fixed;right:14px;top:50%;transform:translateY(-60%);z-index:1100;display:flex;flex-direction:column;align-items:center;gap:8px}
+.nav-btn{width:40px;height:40px;border-radius:50%;background:rgba(6,14,25,.92);border:1px solid rgba(125,190,235,.28);color:#9bd7ff;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 12px rgba(0,0,0,.4);transition:background .15s,transform .1s}
+.nav-btn:hover{background:rgba(30,73,106,.7)}
+.nav-btn:active{transform:scale(.93)}
+.nav-btn svg{fill:currentColor}
+.compass-btn{width:52px;height:52px;padding:0;position:relative;overflow:visible}
+.compass-btn svg{width:42px;height:42px}
+.compass-ring{fill:none;stroke:rgba(200,220,240,.3);stroke-width:1.3}
+.compass-needle-n{fill:#e04040}
+.compass-needle-s{fill:#e0e0e0}
+.compass-ticks text{fill:rgba(200,220,240,.65);font-size:6.5px;font-family:var(--ui-font-family);text-anchor:middle;dominant-baseline:central;font-weight:600}
+.compass-n-tick{fill:rgba(224,64,64,.85)!important}
+.nav-divider{width:28px;height:1px;background:rgba(125,190,235,.16)}
+body.ui-hidden .nav-controls{display:none!important}
+
+/* === Profile Tool === */
+.profile-panel{position:fixed;left:12px;bottom:34px;z-index:1200;background:rgba(6,14,25,.96);border:1px solid rgba(125,190,235,.28);border-radius:14px;padding:14px 16px;box-shadow:0 8px 32px rgba(0,0,0,.55);max-width:640px;width:calc(100vw - 24px);display:none;font-family:var(--ui-font-family)}
+.profile-panel.open{display:block}
+.profile-panel-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.profile-panel-header h3{font-size:calc(13px * var(--ui-font-scale));color:#9bd7ff;margin:0;font-weight:650}
+.profile-close{background:transparent;border:0;color:#81a8bd;font-size:22px;line-height:1;cursor:pointer;padding:0 4px}
+.profile-close:hover{color:#fff}
+.profile-canvas-wrap{position:relative;width:100%;height:200px;border-radius:8px;overflow:hidden;background:rgba(4,10,20,.6);border:1px solid rgba(125,190,235,.12)}
+.profile-canvas-wrap canvas{width:100%;height:100%;display:block}
+.profile-stats{display:flex;flex-wrap:wrap;gap:5px 18px;margin-top:8px;font-size:calc(11px * var(--ui-font-scale));color:#c7d8e6}
+.profile-stats .stat-label{color:#7fa9c2;text-transform:uppercase;letter-spacing:.5px;font-size:calc(10px * var(--ui-font-scale))}
+.profile-stats .stat-value{color:#eef9ff;font-weight:600;margin-left:4px}
+.profile-progress{font-size:calc(11px * var(--ui-font-scale));color:#e8c878;margin-top:4px;min-height:16px}
+.profile-instructions{font-size:calc(11.5px * var(--ui-font-scale));color:#9fb0bd;text-align:center;padding:18px 0}
+
+/* Profile button active state in control-pill */
+.control-pill button.profile-active{background:linear-gradient(135deg,rgba(180,80,40,.92),rgba(140,52,22,.92))!important;color:#ffe8d0!important;font-weight:650}
+
+/* Crosshair cursor when profile tool is active */
+body.profile-drawing #map{cursor:crosshair!important}
+body.profile-drawing .leaflet-container{cursor:crosshair!important}
+body.profile-drawing .leaflet-interactive{cursor:crosshair!important}
+
+@media(max-width:900px){
+  .nav-controls{right:8px;transform:translateY(-55%)}
+  .nav-btn{width:36px;height:36px}
+  .compass-btn{width:46px;height:46px}
+  .compass-btn svg{width:36px;height:36px}
+  .profile-panel{left:6px;bottom:30px;max-width:calc(100vw - 12px);padding:10px 12px}
+  .profile-canvas-wrap{height:160px}
+}
+@media(max-width:480px){
+  .profile-canvas-wrap{height:130px}
+  .profile-stats{gap:3px 10px}
+  .compass-btn{width:42px;height:42px}.compass-btn svg{width:33px;height:33px}
+  .nav-btn{width:34px;height:34px}
+}
+
+</style>
+</head>
+<body>
+<div id="map"></div>
+<div id="cesiumContainer"></div>
+<div class="loading-overlay" id="loadingOverlay"><div class="loading-spinner" id="loadingSpinner"></div><div class="loading-text" id="loadingText">Loading 3D globe...</div><div class="loading-detail" id="loadingDetail"></div></div>
+<div class="title-bar"><h1>World Bathymetry Explorer</h1><div class="subtitle">GEBCO | NOAA/NCEI BAG | Esri Ocean | OpenSeaMap | NOAA ENC | EMODnet</div></div>
+<div class="search-box"><input id="searchInput" type="text" placeholder="Search or enter lat, lon" autocomplete="off" /><button id="searchBtn" type="button">Go</button></div>
+<div class="projection-notice" id="projNotice">Plate Carree mode: XYZ tile overlays are hidden. WMS layers and point queries remain available.</div>
+<div class="coord-display" id="coords">Lat: 0.0000 &nbsp; Lon: 0.0000</div>
+<div class="toast" id="toast"></div>
+<div class="info-panel"><button class="info-toggle" id="infoBtn" type="button">Data sources</button><div class="info-content" id="infoContent">
+<h3>What changed in this reviewed build</h3>
+<ul><li>Uses the attached file's stronger Leaflet plus on-demand Cesium pattern.</li><li>Retains Mercator, Plate Carree, and 3D globe frames.</li><li>Splits bathymetry, depth contours, and nautical overlays into separate opacity controls.</li><li>Moves numeric point queries to a resilient three-stage stack: NOAA/NCEI DEM sample, GEBCO WMS feature query, then ETOPO ERDDAP fallback.</li><li>Removes direct Google tile URLs. Google map tiles require keyed Google Maps Platform access.</li></ul>
+<h3>Bathymetry</h3>
+GEBCO WMS latest layers provide global shaded relief, colour elevation, measured-data, and sub-ice/topography visual layers. NOAA/NCEI services provide BAG high-resolution bathymetry where coverage exists, the global DEM mosaic and ETOPO fallback queries.
+<h3>Contours and nautical overlays</h3>
+Global GEBCO-derived contour tiles, OpenSeaMap seamarks and depth contours, Esri Ocean reference labels, EMODnet regional bathymetry, NOAA chart display services for United States waters, the NOAA/NCEI high-resolution BAG bathymetry mosaic, and an experimental ArgoGIS ENC overlay.
+<h3>Source links and terms</h3>
+<ul>
+<li><a href="https://www.gebco.net/data-products/gebco-web-services/web-map-service" target="_blank" rel="noopener">GEBCO Web Map Service</a> and <a href="https://www.gebco.net/data-products/gridded-bathymetry/terms-of-use" target="_blank" rel="noopener">GEBCO terms</a></li>
+<li><a href="https://gis.ngdc.noaa.gov/arcgis/rest/services/bag_bathymetry/ImageServer" target="_blank" rel="noopener">NOAA/NCEI BAG bathymetry</a>, <a href="https://gis.ngdc.noaa.gov/arcgis/rest/services/DEM_mosaics/DEM_global_mosaic/ImageServer" target="_blank" rel="noopener">NOAA/NCEI global DEM</a>, and <a href="https://www.ncei.noaa.gov/products/etopo-global-relief-model" target="_blank" rel="noopener">ETOPO 2022</a></li>
+<li><a href="https://nauticalcharts.noaa.gov/data/gis-data-and-services.html" target="_blank" rel="noopener">NOAA chart display and ENC services</a></li>
+<li><a href="https://openseamap.org/index.php?L=1&amp;id=faq" target="_blank" rel="noopener">OpenSeaMap seamarks and depth contours</a></li>
+<li><a href="https://emodnet.ec.europa.eu/en/bathymetry" target="_blank" rel="noopener">EMODnet Bathymetry</a></li>
+<li><a href="https://developers.arcgis.com/documentation/esri-and-data-attribution/" target="_blank" rel="noopener">Esri basemap attribution</a> and <a href="https://www.carto.com/attribution" target="_blank" rel="noopener">CARTO attribution</a></li>
+<li><a href="ATTRIBUTION.md" target="_blank" rel="noopener">Full attribution and service notice</a> | <a href="LICENSE" target="_blank" rel="noopener">GNU GPL-3.0-or-later app licence</a></li>
+</ul>
+<h3>Point readout</h3>
+Click or tap anywhere. The readout now tries NOAA BAG first where available, then NOAA/NCEI global DEM, GEBCO GetFeatureInfo, and ETOPO. Negative values are interpreted as depth below the vertical datum. Positive values are land, ice, or topographic elevation.
+<p class="fineprint warning"><b>Not for navigation.</b> This is a screening and exploration tool. Use official nautical products for navigation and safety-of-life decisions. The application licence does not re-license third-party map, chart or bathymetry data.</p>
+</div></div>
+<div class="quickview-panel" id="qvPanel"><button class="qv-toggle" id="qvBtn" type="button">Quick view</button><div class="qv-list" id="qvList">
+<button class="qv-btn" data-lat="-32.05" data-lng="115.74" data-z="12">Fremantle</button><button class="qv-btn" data-lat="1.25" data-lng="103.80" data-z="11">Singapore</button><button class="qv-btn" data-lat="54.00" data-lng="3.00" data-z="8">North Sea</button><button class="qv-btn" data-lat="38.00" data-lng="15.00" data-z="7">Mediterranean</button><button class="qv-btn" data-lat="36.80" data-lng="-75.50" data-z="10">US East Coast</button><button class="qv-btn" data-lat="-20.00" data-lng="115.00" data-z="7">NW Australia</button><button class="qv-btn" data-lat="-4.00" data-lng="129.00" data-z="7">Banda Sea</button>
+</div></div>
+<div class="depth-card hidden" id="depthCard"><button class="depth-close" id="depthClose" type="button">&times;</button><div id="depthCardContent"></div></div>
+<div id="cesiumPopup"><button class="close-btn" id="cesiumPopupClose" type="button">&times;</button><div id="cesiumPopupContent"></div></div>
+<div class="bottom-controls" id="bottomControls">
+<div class="control-pill"><button id="btnMercator" class="active" type="button">Mercator</button><button id="btnPlateCarree" type="button">Plate Carree</button><button id="btnGlobe" type="button">3D globe</button><button id="btnProfile" type="button">Profile</button><button id="controlsHide" class="collapse-btn" type="button">Hide UI</button></div>
+<div class="opacity-panel">
+<div class="opacity-row bathy"><label for="bathySlider">Bathymetry</label><input id="bathySlider" type="range" min="0" max="100" step="5" value="50" /><span class="opacity-value" id="bathyOpVal">50%</span><span class="hide-dot" id="bathyDot"></span></div>
+<div class="opacity-row contours"><label for="contourSlider">Contours</label><input id="contourSlider" type="range" min="0" max="100" step="5" value="85" /><span class="opacity-value" id="contourOpVal">85%</span><span class="hide-dot" id="contourDot"></span></div>
+<div class="opacity-row nautical"><label for="nautSlider">Nautical</label><input id="nautSlider" type="range" min="0" max="100" step="5" value="85" /><span class="opacity-value" id="nautOpVal">85%</span><span class="hide-dot" id="nautDot"></span></div>
+<div class="font-row"><label for="fontSlider">Font size</label><button id="fontDown" type="button" title="Decrease UI font size">A-</button><input id="fontSlider" type="range" min="85" max="130" step="5" value="100" /><button id="fontUp" type="button" title="Increase UI font size">A+</button><span class="opacity-value" id="fontScaleVal">100%</span></div>
+<div class="globe-align-row" id="globeAlignRow"><label>Globe align</label><button id="alignNorth" type="button" title="Align globe to north-up">N</button><button id="alignEast" type="button" title="Align globe to east-up">E</button><button id="alignSouth" type="button" title="Align globe to south-up">S</button><button id="alignWest" type="button" title="Align globe to west-up">W</button></div>
+<div class="action-row"><button id="blendPreset" type="button">50/50 blend</button><button id="cmapPreset" type="button">Chart-style contours</button><button id="divePreset" type="button">Dive-detail preset</button><button id="clearPreset" type="button">Clear overlays</button></div>
+</div>
+<div class="control-pill"><button id="btnMap" class="active" type="button">Map</button><button id="btnSatellite" type="button">Satellite hybrid</button><button id="btnOcean" type="button">Ocean chart</button></div>
+</div>
+<button class="controls-tab" id="controlsShow" type="button">Controls</button>
+<button class="ui-show-button" id="uiShowButton" type="button">Show UI</button>
+<div class="minimap-container" id="minimapContainer"><div id="minimap"></div></div>
+
+<!-- Navigation Controls (Google-Maps style) -->
+<div class="nav-controls" id="navControls">
+  <button class="nav-btn compass-btn" id="compassBtn" type="button" title="Reset bearing to north">
+    <svg id="compassSvg" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="24" cy="24" r="22" class="compass-ring"/>
+      <g class="compass-ticks">
+        <text x="24" y="7" class="compass-n-tick">N</text>
+        <text x="24" y="43">S</text>
+        <text x="6" y="25">W</text>
+        <text x="42" y="25">E</text>
+      </g>
+      <g id="compassNeedle">
+        <polygon points="24,8.5 21,24 27,24" class="compass-needle-n"/>
+        <polygon points="24,39.5 21,24 27,24" class="compass-needle-s"/>
+        <circle cx="24" cy="24" r="2.8" fill="rgba(200,220,240,.9)" stroke="rgba(6,14,25,.7)" stroke-width="1"/>
+      </g>
+    </svg>
+  </button>
+  <button class="nav-btn" id="geolocateBtn" type="button" title="Go to my location">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:20px;height:20px">
+      <circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/>
+      <circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.4"/>
+      <line x1="12" y1="0" x2="12" y2="4" stroke="currentColor" stroke-width="1.6"/>
+      <line x1="12" y1="20" x2="12" y2="24" stroke="currentColor" stroke-width="1.6"/>
+      <line x1="0" y1="12" x2="4" y2="12" stroke="currentColor" stroke-width="1.6"/>
+      <line x1="20" y1="12" x2="24" y2="12" stroke="currentColor" stroke-width="1.6"/>
+    </svg>
+  </button>
+  <div class="nav-divider"></div>
+  <button class="nav-btn" id="navZoomIn" type="button" title="Zoom in">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:20px;height:20px">
+      <line x1="12" y1="6" x2="12" y2="18" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="6" y1="12" x2="18" y2="12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+    </svg>
+  </button>
+  <button class="nav-btn" id="navZoomOut" type="button" title="Zoom out">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:20px;height:20px">
+      <line x1="6" y1="12" x2="18" y2="12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+    </svg>
+  </button>
+</div>
+
+<!-- Profile / Transect Panel -->
+<div class="profile-panel" id="profilePanel">
+  <div class="profile-panel-header">
+    <h3 id="profileTitle">Elevation / Bathymetry Profile</h3>
+    <button class="profile-close" id="profileClose" type="button" title="Close">&times;</button>
+  </div>
+  <div class="profile-canvas-wrap">
+    <canvas id="profileCanvas"></canvas>
+  </div>
+  <div class="profile-stats" id="profileStats"></div>
+  <div class="profile-progress" id="profileProgress"></div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+(function(){
+"use strict";
+var S={view:"mercator",center:[-32.05,115.74],zoom:10,baseKey:"esriStreet",baseType:"map",bathyOpacity:50,contourOpacity:85,nautOpacity:85,fontScale:100,aB:["gebcoFlat"],aC:["gebcoContours"],aN:["openSeaMap","esriOceanRef"]};
+var GEBCO_WMS="https://wms.gebco.net/mapserv?";
+var GEBCO_WMS_CESIUM="https://wms.gebco.net/mapserv";
+var NOAA_DEM="https://gis.ngdc.noaa.gov/arcgis/rest/services/DEM_mosaics/DEM_global_mosaic/ImageServer";
+var NOAA_BAG="https://gis.ngdc.noaa.gov/arcgis/rest/services/bag_bathymetry/ImageServer";
+var ETOPO_CSV="https://coastwatch.pfeg.noaa.gov/erddap/griddap/ETOPO_2022_v1_15s_Lon0360.csv";
+var NOAA_CHART_WMS="https://gis.charttools.noaa.gov/arcgis/rest/services/MCS/NOAAChartDisplay/MapServer/exts/MaritimeChartService/WMSServer";
+var NOAA_ENC_WMS="https://gis.charttools.noaa.gov/arcgis/rest/services/MCS/ENCOnline/MapServer/exts/MaritimeChartService/WMSServer";
+var EMODNET_WMS="https://ows.emodnet-bathymetry.eu/wms";
+var GRID_STEP=1/240,LAT_MIN=-89.99791666666667,LAT_MAX=89.99791666666667,LON_MIN_360=0.0020833333333333333,LON_MAX_360=359.99791666666664;
+var $m=document.getElementById("map"),$c=document.getElementById("cesiumContainer"),$coords=document.getElementById("coords"),$proj=document.getElementById("projNotice"),$toast=document.getElementById("toast"),$qv=document.getElementById("qvPanel"),$mini=document.getElementById("minimapContainer");
+var $bo=document.getElementById("bathySlider"),$bv=document.getElementById("bathyOpVal"),$bd=document.getElementById("bathyDot"),$co=document.getElementById("contourSlider"),$cv=document.getElementById("contourOpVal"),$cd=document.getElementById("contourDot"),$no=document.getElementById("nautSlider"),$nv=document.getElementById("nautOpVal"),$nd=document.getElementById("nautDot"),$fs=document.getElementById("fontSlider"),$fv=document.getElementById("fontScaleVal"),$fd=document.getElementById("fontDown"),$fu=document.getElementById("fontUp");
+var $vm=document.getElementById("btnMercator"),$vp=document.getElementById("btnPlateCarree"),$vg=document.getElementById("btnGlobe"),$bm=document.getElementById("btnMap"),$bs=document.getElementById("btnSatellite"),$oc=document.getElementById("btnOcean");
+var $bottom=document.getElementById("bottomControls"),$show=document.getElementById("controlsShow"),$depth=document.getElementById("depthCard"),$depthContent=document.getElementById("depthCardContent"),$cp=document.getElementById("cesiumPopup"),$cc=document.getElementById("cesiumPopupContent");
+var $lo=document.getElementById("loadingOverlay"),$lt=document.getElementById("loadingText"),$ld=document.getElementById("loadingDetail"),$ls=document.getElementById("loadingSpinner");
+var LM=null,LC=null,LB=null,mm=null,vr=null,LBO={},LCO={},LNO={},activePopup=null,lastQueryToken=0,toastTimer=null;
+function toast(msg){$toast.textContent=msg;$toast.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(function(){$toast.classList.remove("show")},3500)}
+function clamp(v,min,max){return Math.min(max,Math.max(min,v))}
+function normLon(lon){var x=((lon+180)%360+360)%360-180;return x===-180?180:x}
+function fmt(n,d){return Number(n).toFixed(d==null?4:d)}
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]})}
+function strip(html){var div=document.createElement("div");div.innerHTML=html;return div.textContent||div.innerText||""}
+function setOp(layer,v){if(!layer)return;if(typeof layer.setOpacity==="function")layer.setOpacity(v);else if(typeof layer.eachLayer==="function")layer.eachLayer(function(l){setOp(l,v)})}
+function hasLayerObj(obj,k){return obj&&LM&&LM.hasLayer(obj[k])}
+function mkXYZ(url,at,max){return L.tileLayer(url,{attribution:at||"",maxZoom:max||19,crossOrigin:true})}
+function mkESStreet(){return mkXYZ("https://services.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}","&copy; Esri",19)}
+function mkESTopo(){return mkXYZ("https://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}","&copy; Esri",19)}
+function mkESImagery(){return mkXYZ("https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}","&copy; Esri, Maxar",19)}
+function mkESLabels(){return mkXYZ("https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}","&copy; Esri",19)}
+function mkESHybrid(){return L.layerGroup([mkESImagery(),mkESLabels()])}
+function mkESOBase(){return mkXYZ("https://services.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}","&copy; Esri, GEBCO, NOAA",13)}
+function mkESOceanRef(){return mkXYZ("https://services.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Reference/MapServer/tile/{z}/{y}/{x}","&copy; Esri",13)}
+function mkESOcean(){return L.layerGroup([mkESOBase(),mkESOceanRef()])}
+function mkCartoDark(){return L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",{attribution:"&copy; OpenStreetMap contributors, &copy; CARTO",maxZoom:20,subdomains:"abcd",crossOrigin:true})}
+function mkWMS(url,layers,at,o){return L.tileLayer.wms(url,{layers:layers,format:"image/png",transparent:true,version:"1.1.1",attribution:at||"",opacity:o==null?1:o})}
+function mkArcGISImageService(url,at,o,renderingRule){var ImageTile=L.GridLayer.extend({createTile:function(coords,done){var tile=document.createElement("img");tile.alt="";tile.setAttribute("role","presentation");tile.crossOrigin="anonymous";var size=this.getTileSize();tile.width=size.x;tile.height=size.y;L.DomEvent.on(tile,"load",function(){done(null,tile)});L.DomEvent.on(tile,"error",function(){done(new Error("ImageServer tile load failed"),tile)});var nwPoint=coords.scaleBy(size),sePoint=nwPoint.add(size),map=this._map,nw=map.unproject(nwPoint,coords.z),se=map.unproject(sePoint,coords.z),sr=map.options.crs===L.CRS.EPSG4326?4326:3857,bbox;if(sr===4326){bbox=[nw.lng,se.lat,se.lng,nw.lat].join(",")}else{var p1=L.CRS.EPSG3857.project(nw),p2=L.CRS.EPSG3857.project(se);bbox=[p1.x,p2.y,p2.x,p1.y].join(",")}var params=new URLSearchParams({f:"image",format:"png32",transparent:"true",bbox:bbox,bboxSR:String(sr),imageSR:String(sr),size:size.x+","+size.y,interpolation:"RSP_BilinearInterpolation"});if(renderingRule)params.set("renderingRule",JSON.stringify({rasterFunction:renderingRule}));tile.src=url+"/exportImage?"+params.toString();return tile}});return new ImageTile({tileSize:256,attribution:at||"",opacity:o==null?1:o,minZoom:3,maxZoom:18,crossOrigin:true})}
+function mkBathyShaded(o){return mkWMS(GEBCO_WMS,"GEBCO_LATEST","GEBCO",o)}
+function mkBathyFlat(o){return mkWMS(GEBCO_WMS,"GEBCO_LATEST_2","GEBCO",o)}
+function mkBathyMeasured(o){return mkWMS(GEBCO_WMS,"GEBCO_LATEST_3","GEBCO",o)}
+function mkBathySubIce(o){return mkWMS(GEBCO_WMS,"GEBCO_LATEST_SUB_ICE_TOPO","GEBCO",o)}
+function mkNoaaBag(o){return mkArcGISImageService(NOAA_BAG,"NOAA/NCEI BAG",o,"ColorHillshadeBAG")}
+function mkGebcoContours(o){return L.tileLayer("https://tiles.arcgis.com/tiles/C8EMgrsFcRFL6LrL/arcgis/rest/services/GEBCO_contours/MapServer/tile/{z}/{y}/{x}",{attribution:"GEBCO, NOAA/NCEI",maxZoom:13,opacity:o==null?1:o,crossOrigin:true})}
+function mkOSMDepth100(o){return L.tileLayer("https://t1.openseamap.org/water_depth_100m/{z}/{x}/{y}.png",{attribution:"OpenSeaMap",maxZoom:17,opacity:o==null?1:o,crossOrigin:true})}
+function mkOSMDepth10(o){return L.tileLayer("https://t1.openseamap.org/water_depth_10m/{z}/{x}/{y}.png",{attribution:"OpenSeaMap",maxZoom:17,opacity:o==null?1:o,crossOrigin:true})}
+function mkEMODContours(o){return mkWMS(EMODNET_WMS,"emodnet:contours","EMODnet",o)}
+function mkOSMSeamarks(o){return L.tileLayer("https://tiles.openseamap.org/seamark/{z}/{x}/{y}.png",{attribution:"OpenSeaMap",maxZoom:18,opacity:o==null?1:o,crossOrigin:true})}
+function mkNOAAChart(o){return mkWMS(NOAA_CHART_WMS,"0,1,2,3,4,5,6,7","NOAA",o)}
+function mkNOAAENC(o){return mkWMS(NOAA_ENC_WMS,"0,1,2,3,4,5,6,7","NOAA",o)}
+function mkEMODBathy(o){return mkWMS(EMODNET_WMS,"emodnet:mean_multicolour","EMODnet",o)}
+function mkArgo(o){return mkWMS("https://enc.argogis.com/wms/wms_enc","ENC","ArgoGIS",o)}
+function mkOceanReference(o){var l=mkESOceanRef();setOp(l,o==null?1:o);return l}
+var BASE_FACTORIES={esriStreet:mkESStreet,esriTopo:mkESTopo,esriSatellite:mkESImagery,esriHybrid:mkESHybrid,esriOcean:mkESOcean,cartoDark:mkCartoDark};
+var BASE_NAMES={esriStreet:"Esri street map",esriTopo:"Esri topographic map",esriSatellite:"Esri satellite imagery",esriHybrid:"Esri satellite hybrid",esriOcean:"Esri ocean chart",cartoDark:"CARTO dark"};
+var BATHY_FACTORIES={gebcoFlat:mkBathyFlat,gebcoShaded:mkBathyShaded,gebcoMeasured:mkBathyMeasured,gebcoSubIce:mkBathySubIce,noaaBAG:mkNoaaBag};
+var BATHY_NAMES={gebcoFlat:"GEBCO colour elevation",gebcoShaded:"GEBCO shaded relief",gebcoMeasured:"GEBCO measured-data cells",gebcoSubIce:"GEBCO sub-ice topography",noaaBAG:"NOAA BAG high-res bathymetry, US"};
+var CONTOUR_FACTORIES={gebcoContours:mkGebcoContours,osmDepth100:mkOSMDepth100,osmDepth10:mkOSMDepth10,emodnetContours:mkEMODContours};
+var CONTOUR_NAMES={gebcoContours:"Depth contours: GEBCO global",osmDepth100:"Depth contours: OpenSeaMap 100 m",osmDepth10:"Depth contours: OpenSeaMap 10 m",emodnetContours:"Depth contours: EMODnet regional"};
+var NAUT_FACTORIES={openSeaMap:mkOSMSeamarks,esriOceanRef:mkOceanReference,noaaChart:mkNOAAChart,noaaENC:mkNOAAENC,emodnetBathy:mkEMODBathy,argoENC:mkArgo};
+var NAUT_NAMES={openSeaMap:"OpenSeaMap seamarks",esriOceanRef:"Esri ocean labels",noaaChart:"NOAA chart display, US",noaaENC:"NOAA ENC ECDIS, US",emodnetBathy:"EMODnet bathymetry, regional",argoENC:"ArgoGIS ENC, experimental"};
+var NO_PLATE={gebcoContours:true,osmDepth100:true,osmDepth10:true,openSeaMap:true,esriOceanRef:true};
+var INFO={gebcoFlat:"GEBCO colour elevation layer is active.",gebcoShaded:"GEBCO shaded relief layer is active.",gebcoMeasured:"Measured-data layer shows cells based on measured data where available.",gebcoSubIce:"Sub-ice topography layer is active.",noaaBAG:"NOAA BAG high-resolution bathymetry is active where NOAA coverage exists, mainly US coastal waters.",gebcoContours:"GEBCO global contour tiles are active.",osmDepth100:"OpenSeaMap 100 m contour tiles are active.",osmDepth10:"OpenSeaMap 10 m contour tiles are active. Use high zoom levels.",emodnetContours:"EMODnet regional contours are active.",openSeaMap:"OpenSeaMap seamarks are active. Coverage depends on community data.",esriOceanRef:"Esri ocean reference labels are active.",noaaChart:"NOAA chart display is active for US waters.",noaaENC:"NOAA ENC ECDIS style layer is active for US waters.",emodnetBathy:"EMODnet bathymetry is active for supported regions.",argoENC:"ArgoGIS ENC overlay is experimental and may be intermittent."};
+function saveMapState(){if(!LM)return;var c=LM.getCenter();S.center=[c.lat,c.lng];S.zoom=LM.getZoom();S.aB=[];for(var k in LBO)if(LM.hasLayer(LBO[k]))S.aB.push(k);S.aC=[];for(var ckey in LCO)if(LM.hasLayer(LCO[ckey]))S.aC.push(ckey);S.aN=[];for(var n in LNO)if(LM.hasLayer(LNO[n]))S.aN.push(n)}
+function destroyMap(){saveMapState();if(LM){LM.remove();LM=null}if(mm){mm.remove();mm=null}LBO={};LCO={};LNO={};LB=null;LC=null;vr=null;activePopup=null}
+function layerAvailableInMode(key,mode){return !(mode==="platecarree"&&NO_PLATE[key])}
+function makeBaseLayers(){var bl={},nameToKey={};for(var k in BASE_FACTORIES){var name=BASE_NAMES[k];bl[name]=BASE_FACTORIES[k]();nameToKey[name]=k}return {layers:bl,nameToKey:nameToKey}}
+function buildMap(mode){var merc=mode==="mercator";var crs=merc?L.CRS.EPSG3857:L.CRS.EPSG4326;var z=S.zoom;if(!merc&&z>8)z=8;$m.style.display="block";$c.style.display="none";$cp.style.display="none";LM=L.map("map",{center:S.center,zoom:z,crs:crs,maxZoom:merc?20:8,minZoom:merc?1:0,worldCopyJump:merc,maxBounds:merc?null:[[-90,-180],[90,180]],zoomControl:false,tap:true});var bo=S.bathyOpacity/100,co=S.contourOpacity/100,no=S.nautOpacity/100;var overlays={};var baseObj=null,nameToKey={};if(merc){baseObj=makeBaseLayers();var bases=baseObj.layers;nameToKey=baseObj.nameToKey;if(!BASE_FACTORIES[S.baseKey])S.baseKey="esriStreet";var currentName=BASE_NAMES[S.baseKey];LB=bases[currentName];LB.addTo(LM)}else{}
+for(var bk in BATHY_FACTORIES){if(!layerAvailableInMode(bk,mode))continue;var bl=BATHY_FACTORIES[bk](bo);LBO[bk]=bl;overlays[BATHY_NAMES[bk]]=bl;if(S.aB.indexOf(bk)!==-1)bl.addTo(LM)}
+for(var ck in CONTOUR_FACTORIES){if(!layerAvailableInMode(ck,mode))continue;var cl=CONTOUR_FACTORIES[ck](co);LCO[ck]=cl;overlays[CONTOUR_NAMES[ck]]=cl;if(S.aC.indexOf(ck)!==-1)cl.addTo(LM)}
+for(var nk in NAUT_FACTORIES){if(!layerAvailableInMode(nk,mode))continue;var nl=NAUT_FACTORIES[nk](no);LNO[nk]=nl;overlays[NAUT_NAMES[nk]]=nl;if(S.aN.indexOf(nk)!==-1)nl.addTo(LM)}
+if(!hasAnyActive(LBO)&&LBO.gebcoFlat){LBO.gebcoFlat.addTo(LM);S.aB=["gebcoFlat"]}
+LC=L.control.layers(merc?baseObj.layers:null,overlays,{position:"topright",collapsed:true}).addTo(LM);if(merc){LM.on("baselayerchange",function(e){LB=e.layer;S.baseKey=nameToKey[e.name]||"esriStreet";syncBaseButtons();if(S.baseKey==="esriHybrid"||S.baseKey==="esriSatellite"){S.baseType="satellite";setBathyOpacity(50)}else if(S.baseKey==="esriOcean"){S.baseType="ocean";setBathyOpacity(35);setContourOpacity(95);setNautOpacity(85)}else{S.baseType="map"}syncBaseButtons()})}
+LM.on("overlayadd",function(e){overlayChanged(e.name,true)});LM.on("overlayremove",function(e){overlayChanged(e.name,false)});
+LM.on("mousemove",function(e){$coords.innerHTML="Lat: "+fmt(e.latlng.lat)+" &nbsp; Lon: "+fmt(normLon(e.latlng.lng))});LM.on("click",function(e){queryLeafletPoint(e.latlng.lat,normLon(e.latlng.lng),e.latlng)});L.control.scale({position:"bottomleft",metric:true,imperial:true}).addTo(LM);if(merc){$mini.classList.remove("hidden");buildMiniMap()}else{$mini.classList.add("hidden")}setBathyOpacity(S.bathyOpacity,true);setContourOpacity(S.contourOpacity,true);setNautOpacity(S.nautOpacity,true);$proj.classList.toggle("active",!merc);$qv.classList.toggle("hidden",!merc);setTimeout(function(){if(LM)LM.invalidateSize()},80)}
+function hasAnyActive(obj){if(!LM)return false;for(var k in obj)if(LM.hasLayer(obj[k]))return true;return false}
+function overlayChanged(name,added){var groups=[{names:BATHY_NAMES,obj:LBO,state:S.aB,op:S.bathyOpacity},{names:CONTOUR_NAMES,obj:LCO,state:S.aC,op:S.contourOpacity},{names:NAUT_NAMES,obj:LNO,state:S.aN,op:S.nautOpacity}];groups.forEach(function(g){for(var k in g.names){if(g.names[k]===name){if(added){if(g.state.indexOf(k)===-1)g.state.push(k);setOp(g.obj[k],g.op/100);if(INFO[k])toast(INFO[k])}else{var i=g.state.indexOf(k);if(i!==-1)g.state.splice(i,1)}}}});syncCesiumLayerVisibility()}
+function buildMiniMap(){if(mm){mm.remove();mm=null;vr=null}mm=L.map("minimap",{zoomControl:false,attributionControl:false,dragging:false,scrollWheelZoom:false,doubleClickZoom:false,boxZoom:false,keyboard:false,tap:false,touchZoom:false}).setView([0,0],1);L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",{maxZoom:6,opacity:.72,subdomains:"abcd",crossOrigin:true}).addTo(mm);function upd(){if(!LM||!mm)return;mm.setView(LM.getCenter(),Math.max(1,(LM.getZoom()||2)-4));if(vr)mm.removeLayer(vr);vr=L.rectangle(LM.getBounds(),{color:"#9bd7ff",weight:2,fillColor:"#9bd7ff",fillOpacity:.12}).addTo(mm)}LM.on("moveend zoomend",upd);upd()}
+function setBathyOpacity(p,silent){S.bathyOpacity=p;$bo.value=p;$bv.textContent=p+"%";$bd.classList.toggle("on",p===0);for(var k in LBO)setOp(LBO[k],p/100);if(cBathy)cBathy.alpha=p/100;if(!silent)syncCesiumLayerVisibility()}
+function setContourOpacity(p,silent){S.contourOpacity=p;$co.value=p;$cv.textContent=p+"%";$cd.classList.toggle("on",p===0);for(var k in LCO)setOp(LCO[k],p/100);if(cContour)cContour.alpha=p/100;if(!silent)syncCesiumLayerVisibility()}
+function setNautOpacity(p,silent){S.nautOpacity=p;$no.value=p;$nv.textContent=p+"%";$nd.classList.toggle("on",p===0);for(var k in LNO)setOp(LNO[k],p/100);if(cSeamark)cSeamark.alpha=p/100;if(cOceanRef)cOceanRef.alpha=p/100;if(!silent)syncCesiumLayerVisibility()}
+function cesiumProbeFont(){return Math.max(10,Math.round(13*S.fontScale/100))+"px \"Segoe UI Condensed\", \"Segoe UI\", sans-serif"}
+function updateCesiumProbeFont(){if(cProbe&&cProbe.label)cProbe.label.font=cesiumProbeFont();if(cViewer)cViewer.scene.requestRender()}
+function setUiFontScale(p,silent){p=clamp(Math.round(p/5)*5,85,130);S.fontScale=p;document.documentElement.style.setProperty("--ui-font-scale",(p/100).toFixed(2));if($fs)$fs.value=p;if($fv)$fv.textContent=p+"%";updateCesiumProbeFont();if(!silent)toast("UI font size "+p+"%") }
+
+function syncViewButtons(){$vm.classList.toggle("active",S.view==="mercator");$vp.classList.toggle("active",S.view==="platecarree");$vg.classList.toggle("active",S.view==="globe");document.body.classList.toggle("is-globe-view",S.view==="globe")}
+function syncBaseButtons(){$bm.classList.toggle("active",S.baseType==="map");$bs.classList.toggle("active",S.baseType==="satellite");$oc.classList.toggle("secondary-active",S.baseType==="ocean")}
+function switchBase(k){if(S.view==="platecarree")return;S.baseKey=k;S.baseType=(k==="esriHybrid"||k==="esriSatellite")?"satellite":(k==="esriOcean"?"ocean":"map");syncBaseButtons();if(S.view==="globe"){setCesiumBase(k);if(S.baseType==="satellite")setBathyOpacity(50);if(S.baseType==="ocean"){setBathyOpacity(35);setContourOpacity(95);setNautOpacity(85)}return}if(S.view==="mercator"){saveMapState();destroyMap();buildMap("mercator");if(S.baseType==="satellite")setBathyOpacity(50);if(S.baseType==="ocean"){setBathyOpacity(35);setContourOpacity(95);setNautOpacity(85)}}}
+function activateMercator(){if(S.view==="mercator")return;if(S.view==="globe"){syncFromCesium()}S.view="mercator";syncViewButtons();hideCesium();destroyMap();buildMap("mercator")}
+function activatePlate(){if(S.view==="platecarree")return;if(S.view==="globe"){syncFromCesium()}else saveMapState();S.view="platecarree";syncViewButtons();hideCesium();destroyMap();buildMap("platecarree")}
+function activateGlobe(){if(S.view==="globe")return;saveMapState();S.view="globe";syncViewButtons();destroyMap();$m.style.display="none";$proj.classList.remove("active");$mini.classList.add("hidden");$qv.classList.add("hidden");initCesium()}
+function hideCesium(){$c.style.display="none";$cp.style.display="none";if(cViewer)cViewer.scene.requestRender()}
+$bo.addEventListener("input",function(){setBathyOpacity(parseInt(this.value,10))});$co.addEventListener("input",function(){setContourOpacity(parseInt(this.value,10))});$no.addEventListener("input",function(){setNautOpacity(parseInt(this.value,10))});$fs.addEventListener("input",function(){setUiFontScale(parseInt(this.value,10))});$fd.addEventListener("click",function(){setUiFontScale(S.fontScale-5)});$fu.addEventListener("click",function(){setUiFontScale(S.fontScale+5)});
+$vm.addEventListener("click",activateMercator);$vp.addEventListener("click",activatePlate);$vg.addEventListener("click",activateGlobe);$bm.addEventListener("click",function(){switchBase("esriStreet");setBathyOpacity(50)});$bs.addEventListener("click",function(){switchBase("esriHybrid")});$oc.addEventListener("click",function(){switchBase("esriOcean")});
+document.getElementById("blendPreset").addEventListener("click",function(){setBathyOpacity(50);setContourOpacity(70);setNautOpacity(70);toast("50/50 blend applied.")});
+document.getElementById("cmapPreset").addEventListener("click",function(){S.baseKey="esriOcean";S.baseType="ocean";S.aB=["gebcoFlat"];S.aC=["gebcoContours","osmDepth100"];S.aN=["openSeaMap","esriOceanRef"];setBathyOpacity(35);setContourOpacity(95);setNautOpacity(90);syncBaseButtons();if(S.view==="mercator"){destroyMap();buildMap("mercator")}else if(S.view==="platecarree"){destroyMap();buildMap("platecarree")}else if(S.view==="globe"){setCesiumBase("esriOcean");syncCesiumLayerVisibility()}toast("Chart-style contour preset applied.")});
+document.getElementById("divePreset").addEventListener("click",function(){S.baseKey="esriHybrid";S.baseType="satellite";S.aB=["gebcoFlat","noaaBAG"];S.aC=["gebcoContours","osmDepth10"];S.aN=["openSeaMap","esriOceanRef","noaaENC"];setBathyOpacity(70);setContourOpacity(90);setNautOpacity(85);syncBaseButtons();if(S.view==="mercator"){destroyMap();buildMap("mercator")}else if(S.view==="platecarree"){destroyMap();buildMap("platecarree")}else if(S.view==="globe"){setCesiumBase("esriHybrid");syncCesiumLayerVisibility()}toast("Dive-detail preset applied. NOAA BAG is detailed where coverage exists; GEBCO remains the global fallback.")});
+document.getElementById("clearPreset").addEventListener("click",function(){setBathyOpacity(0);setContourOpacity(0);setNautOpacity(0);toast("Overlays hidden. Re-enable from layer control or sliders.")});
+function hideFullUi(){document.body.classList.add("ui-hidden");$bottom.classList.remove("collapsed");$show.classList.remove("show");$cp.style.display="none";if($depth)$depth.classList.add("hidden")}function showFullUi(){document.body.classList.remove("ui-hidden");if(LM)setTimeout(function(){LM.invalidateSize()},60);if(cViewer)setTimeout(function(){cViewer.resize();cViewer.forceResize&&cViewer.forceResize();cViewer.scene.requestRender()},60)}document.getElementById("controlsHide").addEventListener("click",hideFullUi);document.getElementById("uiShowButton").addEventListener("click",showFullUi);$show.addEventListener("click",function(){$bottom.classList.remove("collapsed");$show.classList.remove("show")});document.addEventListener("keydown",function(e){if(e.key&&e.key.toLowerCase()==="h"&&!e.target.matches("input,textarea")){document.body.classList.contains("ui-hidden")?showFullUi():hideFullUi()}});
+document.getElementById("alignNorth").addEventListener("click",function(){alignGlobe("north")});document.getElementById("alignEast").addEventListener("click",function(){alignGlobe("east")});document.getElementById("alignSouth").addEventListener("click",function(){alignGlobe("south")});document.getElementById("alignWest").addEventListener("click",function(){alignGlobe("west")});
+document.getElementById("infoBtn").addEventListener("click",function(){document.getElementById("infoContent").classList.toggle("open")});document.getElementById("qvBtn").addEventListener("click",function(){document.getElementById("qvList").classList.toggle("open")});document.getElementById("depthClose").addEventListener("click",function(){$depth.classList.add("hidden")});document.getElementById("cesiumPopupClose").addEventListener("click",function(){$cp.style.display="none"});
+document.querySelectorAll(".qv-btn").forEach(function(btn){btn.addEventListener("click",function(){var lat=parseFloat(this.dataset.lat),lon=parseFloat(this.dataset.lng),z=parseInt(this.dataset.z,10);goTo(lat,lon,z,true)})});
+function parseCoordText(text){var q=text.trim();var m=q.match(/^\s*(-?\d+(?:\.\d+)?)\s*[, ]\s*(-?\d+(?:\.\d+)?)\s*$/);if(!m)return null;var lat=parseFloat(m[1]),lon=parseFloat(m[2]);if(!Number.isFinite(lat)||!Number.isFinite(lon))return null;if(lat<-90||lat>90)return null;return {lat:lat,lon:normLon(lon)}}
+function doSearch(){var q=document.getElementById("searchInput").value.trim();if(!q)return;var p=parseCoordText(q);if(p){goTo(p.lat,p.lon,8,true);queryAt(p.lat,p.lon,true,null);return}fetch("https://nominatim.openstreetmap.org/search?format=json&limit=1&q="+encodeURIComponent(q),{cache:"no-store"}).then(function(r){if(!r.ok)throw new Error("HTTP "+r.status);return r.json()}).then(function(d){if(d&&d.length){var lat=parseFloat(d[0].lat),lon=parseFloat(d[0].lon);goTo(lat,lon,8,true);queryAt(lat,lon,true,null)}else{toast("Location not found.")}}).catch(function(){toast("Search unavailable. Enter decimal coordinates instead.")})}
+document.getElementById("searchBtn").addEventListener("click",doSearch);document.getElementById("searchInput").addEventListener("keydown",function(e){if(e.key==="Enter")doSearch()});
+function goTo(lat,lon,zoom,animate){lat=clamp(lat,-85.05112878,85.05112878);lon=normLon(lon);S.center=[lat,lon];S.zoom=zoom||8;if(S.view==="globe"&&cViewer){flyCesiumTo(lat,lon,zoomToHeight(S.zoom))}else if(LM){LM.flyTo([lat,lon],S.zoom,{duration:animate?1.2:0})}}
+function queryLeafletPoint(lat,lon,latlng){if(activePopup)LM.closePopup(activePopup);activePopup=L.popup({maxWidth:340}).setLatLng(latlng).setContent("<b>Querying depth/elevation...</b>").openOn(LM);queryAt(lat,lon,true,activePopup)}
+async function queryAt(latInput,lonInput,showPopup,popup){var token=++lastQueryToken;var lat=clamp(latInput,LAT_MIN,LAT_MAX);var lon=normLon(lonInput);var bagUrl=inNoaaBagExtent(lat,lon)?buildBagUrl(lat,lon):null;var noaaUrl=buildNoaaUrl(lat,lon);var gebcoUrl=buildGebcoFeatureInfoUrl(lat,lon);var lon360=lon<0?lon+360:lon;var sLat=snap(lat,LAT_MIN,LAT_MAX,GRID_STEP);var sLon=snap(lon360,LON_MIN_360,LON_MAX_360,GRID_STEP);var etopoUrl=buildEtopoUrl(sLat,sLon);renderDepthCard("<strong>Depth/elevation probe</strong><span class=\"value\">Querying...</span>Lat "+fmt(lat)+", lon "+fmt(lon)+"<br><span class=\"small\">Primary where available: NOAA BAG high-resolution bathymetry. Fallbacks: NOAA/NCEI DEM Global Mosaic, GEBCO GetFeatureInfo, then ETOPO ERDDAP.</span>");if(popup)popup.setContent("<b>Querying depth/elevation...</b><br><span style=\"font-size:calc(11px * var(--ui-font-scale));color:#9fb0bd\">Lat "+fmt(lat)+", lon "+fmt(lon)+"</span>");showCesiumProbe(lat,lon,"Querying depth/elevation...");var errors=[];try{var result;try{if(!bagUrl)throw new Error("outside NOAA BAG mosaic extent");result=await queryBag(lat,lon,bagUrl)}catch(e0){errors.push("NOAA BAG: "+e0.message);try{result=await queryNoaa(lat,lon,noaaUrl)}catch(e1){errors.push("NOAA/NCEI: "+e1.message);try{result=await queryGebco(gebcoUrl,lat,lon)}catch(e2){errors.push("GEBCO: "+e2.message);result=await queryEtopo(etopoUrl);result.note="Higher-priority fallbacks failed: "+errors.join(" | ")}}}if(token!==lastQueryToken)return;result.rawLinks={bag:bagUrl,noaa:noaaUrl,gebco:gebcoUrl,etopo:etopoUrl};result.lat=lat;result.lon=lon;renderDepthResult(result,popup)}catch(err){if(token!==lastQueryToken)return;var bagLink=bagUrl?"<a href=\""+bagUrl+"\" target=\"_blank\" rel=\"noopener\">NOAA BAG query</a> | ":"";var html="<strong>Depth/elevation probe</strong><span class=\"value\">No readout</span>Map layers are still usable, but all numeric query services failed.<br>Lat "+fmt(lat)+", lon "+fmt(lon)+"<br><span class=\"small\">Error: "+esc(err.message)+". "+bagLink+"<a href=\""+noaaUrl+"\" target=\"_blank\" rel=\"noopener\">NOAA query</a> | <a href=\""+gebcoUrl+"\" target=\"_blank\" rel=\"noopener\">GEBCO query</a> | <a href=\""+etopoUrl+"\" target=\"_blank\" rel=\"noopener\">ETOPO query</a></span>";renderDepthCard(html);if(popup)popup.setContent(html);showCesiumProbe(lat,lon,"Numeric readout failed.")}}
+function renderDepthCard(html){$depthContent.innerHTML=html;$depth.classList.remove("hidden")}
+function renderDepthResult(r,popup){var z=Number(r.z);var signed=(z>=0?"+":"")+Math.round(z).toLocaleString()+" m";var label=z<0?"Bathymetry":"Topography or ice";var interp=z<0?Math.abs(Math.round(z)).toLocaleString()+" m below vertical datum":Math.round(z).toLocaleString()+" m above vertical datum";var note=r.note?" "+esc(r.note):"";var links=(r.rawLinks.bag?"<a href=\""+r.rawLinks.bag+"\" target=\"_blank\" rel=\"noopener\">NOAA BAG</a> | ":"")+"<a href=\""+r.rawLinks.noaa+"\" target=\"_blank\" rel=\"noopener\">NOAA</a> | <a href=\""+r.rawLinks.gebco+"\" target=\"_blank\" rel=\"noopener\">GEBCO</a> | <a href=\""+r.rawLinks.etopo+"\" target=\"_blank\" rel=\"noopener\">ETOPO</a>";var html="<strong>Depth/elevation probe</strong><span class=\"value\">"+signed+"</span><strong>"+label+":</strong> "+interp+"<br>Lat "+fmt(r.lat)+", lon "+fmt(r.lon)+"<br><span class=\"small\">Source: "+esc(r.source)+"."+note+" Raw queries: "+links+"</span>";renderDepthCard(html);if(popup)popup.setContent(html);showCesiumProbe(r.lat,r.lon,"<strong>Depth/elevation</strong><br>Value: <strong>"+signed+"</strong><br>Source: "+esc(r.source)+"<br>Lat "+fmt(r.lat)+", lon "+fmt(r.lon))}
+function inNoaaBagExtent(lat,lon){lon=normLon(lon);return lat>=-14.98&&lat<=73.83&&lon>=-177.51&&lon<=166.67}
+function buildBagUrl(lat,lon){var geom=JSON.stringify({x:Number(lon),y:Number(lat),spatialReference:{wkid:4326}});var p=new URLSearchParams({f:"json",geometryType:"esriGeometryPoint",geometry:geom,returnFirstValueOnly:"true",interpolation:"RSP_BilinearInterpolation",outFields:"SurveyID,Name,ProductName,Tag,LowPSActual,HighPSActual"});return NOAA_BAG+"/getSamples?"+p.toString()}
+async function queryBag(lat,lon,url){var data;try{data=await requestJsonp(url,15000)}catch(e){data=await fetchJson(url)}if(data&&data.error)throw new Error(data.error.message||"ArcGIS service error");if(!data||!Array.isArray(data.samples)||!data.samples.length)throw new Error("no samples returned");var sample=data.samples[0];var z=parseSample(sample.value);if(!Number.isFinite(z))throw new Error("sample value was not numeric");var attrs=sample.attributes||{};var survey=attrs.SurveyID||attrs.Name||attrs.ProductName||"";var note=(survey?" Source survey/raster: "+survey+".":"")+" NOAA BAG values are high-resolution surveyed bathymetry where coverage exists, usually referenced to chart datums such as MLLW.";return {z:z,source:"NOAA/NCEI BAG high-resolution bathymetry",note:note}}
+function buildNoaaUrl(lat,lon){var geom=JSON.stringify({x:Number(lon),y:Number(lat),spatialReference:{wkid:4326}});var p=new URLSearchParams({f:"json",geometryType:"esriGeometryPoint",geometry:geom,returnFirstValueOnly:"true",interpolation:"RSP_BilinearInterpolation",outFields:"DemName,VerticalDatum,CellsizeArcseconds,ProductName,MetadataURL"});return NOAA_DEM+"/getSamples?"+p.toString()}
+async function queryNoaa(lat,lon,url){var data;try{data=await requestJsonp(url,15000)}catch(e){data=await fetchJson(url)}if(data&&data.error)throw new Error(data.error.message||"ArcGIS service error");if(!data||!Array.isArray(data.samples)||!data.samples.length)throw new Error("no samples returned");var sample=data.samples[0];var z=parseSample(sample.value);if(!Number.isFinite(z))throw new Error("sample value was not numeric");var attrs=sample.attributes||{};var dem=attrs.DemName||attrs.ProductName||"";var datum=attrs.VerticalDatum||"";var note=(dem?" Source raster: "+dem+".":"")+(datum?" Vertical datum: "+datum+".":"");return {z:z,source:"NOAA/NCEI DEM Global Mosaic",note:note}}
+function parseSample(v){if(v==null)return NaN;if(typeof v==="number")return v;if(Array.isArray(v))return parseSample(v[0]);var first=String(v).split(",")[0].trim();if(!first||/^(nan|nodata|null)$/i.test(first))return NaN;return Number(first)}
+function buildGebcoFeatureInfoUrl(lat,lon){var d=0.0045;var bbox=[lon-d,lat-d,lon+d,lat+d].join(",");var p=new URLSearchParams({SERVICE:"WMS",VERSION:"1.1.1",REQUEST:"GetFeatureInfo",LAYERS:"GEBCO_LATEST_2",QUERY_LAYERS:"GEBCO_LATEST_2",INFO_FORMAT:"text/plain",SRS:"EPSG:4326",BBOX:bbox,WIDTH:"3",HEIGHT:"3",X:"1",Y:"1"});return GEBCO_WMS+p.toString()}
+async function queryGebco(url,lat,lon){var r=await fetch(url,{cache:"no-store"});if(!r.ok)throw new Error("HTTP "+r.status);var t=await r.text();var z=parseGebcoText(t);if(!Number.isFinite(z))throw new Error("no numeric value in response");return {z:z,source:"GEBCO WMS GetFeatureInfo",note:"Value from GEBCO visual layer."}}
+function parseGebcoText(t){var lines=String(t).split(/\r?\n/);for(var i=0;i<lines.length;i++){var line=lines[i];if(/(value|elevation|height|pixel)/i.test(line)){var m=line.match(/-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?/);if(m)return Number(m[0])}}var all=String(t).match(/-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?/g);if(all&&all.length)return Number(all[all.length-1]);return NaN}
+function snap(v,min,max,step){return clamp(Math.round((v-min)/step)*step+min,min,max)}
+function buildEtopoUrl(lat,lon360){return ETOPO_CSV+"?z%5B("+lat.toFixed(10)+"):1:("+lat.toFixed(10)+")%5D%5B("+lon360.toFixed(10)+"):1:("+lon360.toFixed(10)+")%5D"}
+async function queryEtopo(url){var r=await fetch(url,{cache:"no-store"});if(!r.ok)throw new Error("ETOPO HTTP "+r.status);var txt=await r.text();var z=parseEtopoCsv(txt);if(!Number.isFinite(z))throw new Error("ETOPO returned no numeric z value");return {z:z,source:"NOAA ETOPO 2022 ERDDAP",note:"Nearest 15 arc-second grid cell fallback."}}
+function parseEtopoCsv(text){var lines=String(text).trim().split(/\r?\n/).filter(Boolean);if(lines.length<2)return NaN;var header=splitCsv(lines[0]).map(function(s){return s.trim()});var zi=header.indexOf("z");if(zi<0)return NaN;for(var i=1;i<lines.length;i++){var vals=splitCsv(lines[i]);if(vals.length===header.length&&/^-?\d+(\.\d+)?([eE][+-]?\d+)?$/.test(vals[zi].trim()))return Number(vals[zi])}return NaN}
+function splitCsv(line){var out=[],cur="",inq=false;for(var i=0;i<line.length;i++){var ch=line[i];if(ch==='"'){if(inq&&line[i+1]==='"'){cur+='"';i++}else inq=!inq}else if(ch===","&&!inq){out.push(cur);cur=""}else cur+=ch}out.push(cur);return out}
+async function fetchJson(url){var r=await fetch(url,{cache:"no-store"});if(!r.ok)throw new Error("HTTP "+r.status);return r.json()}
+function requestJsonp(url,timeoutMs){return new Promise(function(resolve,reject){var cb="__bathy_cb_"+Date.now().toString(36)+"_"+Math.random().toString(36).slice(2);var script=document.createElement("script"),done=false;var timer=setTimeout(function(){cleanup();reject(new Error("JSONP timeout"))},timeoutMs||12000);function cleanup(){if(done)return;done=true;clearTimeout(timer);if(script.parentNode)script.parentNode.removeChild(script);try{delete window[cb]}catch(e){window[cb]=undefined}}window[cb]=function(data){cleanup();resolve(data)};script.onerror=function(){cleanup();reject(new Error("JSONP failed"))};script.src=url+(url.indexOf("?")>=0?"&":"?")+"callback="+encodeURIComponent(cb);document.body.appendChild(script)})}
+var cViewer=null,cLoadState="idle",cBaseLayers=[],cBathy=null,cContour=null,cSeamark=null,cOceanRef=null,cProbe=null;
+var CDN=[{js:"https://cesium.com/downloads/cesiumjs/releases/1.103/Build/Cesium/Cesium.js",css:"https://cesium.com/downloads/cesiumjs/releases/1.103/Build/Cesium/Widgets/widgets.css",base:"https://cesium.com/downloads/cesiumjs/releases/1.103/Build/Cesium/"},{js:"https://cdn.jsdelivr.net/npm/cesium@1.103.0/Build/Cesium/Cesium.js",css:"https://cdn.jsdelivr.net/npm/cesium@1.103.0/Build/Cesium/Widgets/widgets.css",base:"https://cdn.jsdelivr.net/npm/cesium@1.103.0/Build/Cesium/"},{js:"https://unpkg.com/cesium@1.103.0/Build/Cesium/Cesium.js",css:"https://unpkg.com/cesium@1.103.0/Build/Cesium/Widgets/widgets.css",base:"https://unpkg.com/cesium@1.103.0/Build/Cesium/"}];
+function canWebGL(){try{var canvas=document.createElement("canvas");return !!(window.WebGLRenderingContext&&(canvas.getContext("webgl")||canvas.getContext("experimental-webgl")))}catch(e){return false}}
+function setLoading(msg,detail,error){$lt.textContent=msg;$lt.className="loading-text"+(error?" error":"");$ld.innerHTML=detail||"";$ls.className="loading-spinner"+(error?" error":"")}
+function initCesium(){if(cViewer){$c.style.display="block";$lo.classList.remove("active");setTimeout(function(){cViewer.resize();cViewer.forceResize&&cViewer.forceResize();syncCesiumLayerVisibility();flyCesiumTo(S.center[0],S.center[1],zoomToHeight(S.zoom))},60);return}if(cLoadState==="loading")return;if(!canWebGL()){globeFailed("3D globe unavailable","This browser does not expose WebGL. Use the 2D map frame.");return}cLoadState="loading";$lo.classList.add("active");setLoading("Loading 3D globe...","Trying CesiumJS CDN sources.",false);loadCesium(0)}
+function loadCesium(i){if(i>=CDN.length){cLoadState="failed";globeFailed("Could not load 3D globe","All CesiumJS CDN sources failed. Check internet access or a corporate network block.");return}var c=CDN[i];setLoading("Loading 3D globe...","Source "+(i+1)+" of "+CDN.length,false);var css=document.createElement("link");css.rel="stylesheet";css.href=c.css;document.head.appendChild(css);window.CESIUM_BASE_URL=c.base;var s=document.createElement("script");var timer=setTimeout(function(){s.onload=null;s.onerror=null;if(s.parentNode)s.parentNode.removeChild(s);if(css.parentNode)css.parentNode.removeChild(css);loadCesium(i+1)},16000);s.onload=function(){clearTimeout(timer);if(typeof Cesium!=="undefined"){setTimeout(createCesium,80)}else{if(css.parentNode)css.parentNode.removeChild(css);loadCesium(i+1)}};s.onerror=function(){clearTimeout(timer);if(s.parentNode)s.parentNode.removeChild(s);if(css.parentNode)css.parentNode.removeChild(css);loadCesium(i+1)};s.src=c.js;document.head.appendChild(s)}
+function globeFailed(title,detail){setLoading(title,detail,true);var b=document.createElement("button");b.className="return-btn";b.textContent="Return to 2D map";b.onclick=function(){$lo.classList.remove("active");activateMercator()};$ld.appendChild(document.createElement("br"));$ld.appendChild(b)}
+function createCesium(){try{Cesium.Ion.defaultAccessToken=null;$c.style.display="block";cViewer=new Cesium.Viewer("cesiumContainer",{imageryProvider:makeCesiumProvider(S.baseKey)[0],terrainProvider:new Cesium.EllipsoidTerrainProvider(),baseLayerPicker:false,geocoder:false,homeButton:false,sceneModePicker:false,navigationHelpButton:false,animation:false,timeline:false,fullscreenButton:false,selectionIndicator:false,infoBox:false,scene3DOnly:true,requestRenderMode:false});cBaseLayers=[cViewer.imageryLayers.get(0)];var extra=makeCesiumProvider(S.baseKey).slice(1);extra.forEach(function(p){cBaseLayers.push(cViewer.imageryLayers.addImageryProvider(p,cBaseLayers.length))});cViewer.scene.globe.enableLighting=false;cViewer.scene.skyAtmosphere.show=true;addCesiumOverlays();var handler=new Cesium.ScreenSpaceEventHandler(cViewer.scene.canvas);handler.setInputAction(function(m){var p=pickCesiumLonLat(m.endPosition);if(p)$coords.innerHTML="Lat: "+fmt(p.lat)+" &nbsp; Lon: "+fmt(p.lon)},Cesium.ScreenSpaceEventType.MOUSE_MOVE);handler.setInputAction(function(click){var p=pickCesiumLonLat(click.position);if(p){showCesiumPopup(click.position.x,click.position.y,"<b>Querying depth/elevation...</b>");queryAt(p.lat,p.lon,true,null)}},Cesium.ScreenSpaceEventType.LEFT_CLICK);cLoadState="loaded";$lo.classList.remove("active");setTimeout(function(){cViewer.resize();cViewer.forceResize&&cViewer.forceResize();flyCesiumTo(S.center[0],S.center[1],zoomToHeight(S.zoom));syncCesiumLayerVisibility()},100)}catch(e){cLoadState="failed";globeFailed("3D globe initialisation failed",esc(e.message))}}
+function makeCesiumProvider(key){var C=Cesium;var opts={esriStreet:["https://services.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",19,"Esri street"],esriTopo:["https://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}",19,"Esri topographic"],esriSatellite:["https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",19,"Esri imagery"],cartoDark:["https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png",20,"CARTO dark"],esriOcean:["https://services.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}",13,"Esri ocean"]};function prov(o){var p={url:o[0],maximumLevel:o[1],credit:o[2]};if(o[0].indexOf("{s}")>=0)p.subdomains="abcd";return new C.UrlTemplateImageryProvider(p)}if(key==="esriHybrid"){return [prov(opts.esriSatellite),new C.UrlTemplateImageryProvider({url:"https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",maximumLevel:19,credit:"Esri labels"})]}if(key==="esriOcean"){return [prov(opts.esriOcean),new C.UrlTemplateImageryProvider({url:"https://services.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Reference/MapServer/tile/{z}/{y}/{x}",maximumLevel:13,credit:"Esri ocean labels"})]}return [prov(opts[key]||opts.esriStreet)]}
+function setCesiumBase(key){if(!cViewer)return;var layers=cViewer.imageryLayers;cBaseLayers.forEach(function(l){if(l)layers.remove(l,false)});cBaseLayers=[];makeCesiumProvider(key).forEach(function(p,i){cBaseLayers.push(layers.addImageryProvider(p,i))});raiseCesiumOverlays();cViewer.scene.requestRender()}
+function addCesiumOverlays(){var layers=cViewer.imageryLayers;cBathy=layers.addImageryProvider(new Cesium.WebMapServiceImageryProvider({url:GEBCO_WMS_CESIUM,layers:"GEBCO_LATEST_2",parameters:{transparent:"true",format:"image/png",version:"1.1.1"},credit:"GEBCO"}));cContour=layers.addImageryProvider(new Cesium.UrlTemplateImageryProvider({url:"https://tiles.arcgis.com/tiles/C8EMgrsFcRFL6LrL/arcgis/rest/services/GEBCO_contours/MapServer/tile/{z}/{y}/{x}",maximumLevel:13,credit:"GEBCO contours"}));cSeamark=layers.addImageryProvider(new Cesium.UrlTemplateImageryProvider({url:"https://tiles.openseamap.org/seamark/{z}/{x}/{y}.png",maximumLevel:18,credit:"OpenSeaMap"}));cOceanRef=layers.addImageryProvider(new Cesium.UrlTemplateImageryProvider({url:"https://services.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Reference/MapServer/tile/{z}/{y}/{x}",maximumLevel:13,credit:"Esri ocean reference"}));syncCesiumLayerVisibility()}
+function raiseCesiumOverlays(){if(!cViewer)return;[cBathy,cContour,cSeamark,cOceanRef].forEach(function(l){if(l)cViewer.imageryLayers.raiseToTop(l)})}
+function syncCesiumLayerVisibility(){if(!cViewer)return;if(cBathy){cBathy.alpha=S.bathyOpacity/100;cBathy.show=S.bathyOpacity>0&&S.aB.length>0}if(cContour){cContour.alpha=S.contourOpacity/100;cContour.show=S.contourOpacity>0&&S.aC.length>0}if(cSeamark){cSeamark.alpha=S.nautOpacity/100;cSeamark.show=S.nautOpacity>0&&S.aN.indexOf("openSeaMap")!==-1}if(cOceanRef){cOceanRef.alpha=S.nautOpacity/100;cOceanRef.show=S.nautOpacity>0&&S.aN.indexOf("esriOceanRef")!==-1}raiseCesiumOverlays();cViewer.scene.requestRender()}
+function pickCesiumLonLat(pos){if(!cViewer||!pos)return null;var scene=cViewer.scene;var cart=null;try{var ray=cViewer.camera.getPickRay(pos);if(ray)cart=scene.globe.pick(ray,scene)}catch(e){}if(!cart)cart=cViewer.camera.pickEllipsoid(pos,scene.globe.ellipsoid);if(!cart)return null;var ct=Cesium.Cartographic.fromCartesian(cart);return {lat:clamp(Cesium.Math.toDegrees(ct.latitude),-89.9999,89.9999),lon:normLon(Cesium.Math.toDegrees(ct.longitude))}}
+function flyCesiumTo(lat,lon,height){if(!cViewer)return;cViewer.camera.flyTo({destination:Cesium.Cartesian3.fromDegrees(normLon(lon),clamp(lat,-89.9,89.9),height||1200000),duration:.35});cViewer.scene.requestRender()}
+function zoomToHeight(z){z=clamp(z||2,1,18);return clamp(40075000/Math.pow(2,z-1),2500,30000000)}
+function alignGlobe(dir){if(S.view!=="globe"||!cViewer){toast("Switch to 3D globe first.");return}syncFromCesium();var deg={north:0,east:90,south:180,west:270}[dir];if(deg==null)return;var h=Cesium.Cartographic.fromCartesian(cViewer.camera.positionWC).height;var pitch=cViewer.camera.pitch;if(!Number.isFinite(pitch))pitch=Cesium.Math.toRadians(-70);pitch=clamp(pitch,Cesium.Math.toRadians(-89.5),Cesium.Math.toRadians(-25));cViewer.camera.flyTo({destination:Cesium.Cartesian3.fromDegrees(normLon(S.center[1]),clamp(S.center[0],-89.9,89.9),h),orientation:{heading:Cesium.Math.toRadians(deg),pitch:pitch,roll:0},duration:.45});toast("Globe aligned "+dir+".");cViewer.scene.requestRender()}
+
+function heightToZoom(h){return clamp(Math.log2(40075000/Math.max(2500,h))+1,1,18)}
+function syncFromCesium(){if(!cViewer)return;var canvas=cViewer.scene.canvas;var p=pickCesiumLonLat(new Cesium.Cartesian2(canvas.clientWidth/2,canvas.clientHeight/2));var h=Cesium.Cartographic.fromCartesian(cViewer.camera.positionWC).height;S.zoom=heightToZoom(h);if(p)S.center=[p.lat,p.lon]}
+function showCesiumPopup(x,y,html){$cc.innerHTML=html;$cp.style.display="block";var w=window.innerWidth,h=window.innerHeight;$cp.style.left=Math.min(Math.max(8,x+12),w-320)+"px";$cp.style.top=Math.min(Math.max(8,y-18),h-160)+"px"}
+function showCesiumProbe(lat,lon,html){if(!cViewer)return;var clean=strip(html).replace(/\s+/g," ").trim().slice(0,130)||"Depth/elevation probe";var pos=Cesium.Cartesian3.fromDegrees(normLon(lon),clamp(lat,-89.9,89.9),35000);if(!cProbe){cProbe=cViewer.entities.add({position:pos,point:{pixelSize:10,color:Cesium.Color.CYAN,outlineColor:Cesium.Color.BLACK,outlineWidth:2,disableDepthTestDistance:Number.POSITIVE_INFINITY},label:{text:clean,font:cesiumProbeFont(),fillColor:Cesium.Color.WHITE,outlineColor:Cesium.Color.BLACK,outlineWidth:3,style:Cesium.LabelStyle.FILL_AND_OUTLINE,showBackground:true,backgroundColor:new Cesium.Color(.03,.08,.16,.78),pixelOffset:new Cesium.Cartesian2(0,-30),disableDepthTestDistance:Number.POSITIVE_INFINITY}})}else{cProbe.position=pos;cProbe.label.text=clean;cProbe.show=true}cViewer.scene.requestRender();$cc.innerHTML=html;if(S.view==="globe")$cp.style.display="block"}
+window.addEventListener("resize",function(){if(LM)LM.invalidateSize();if(cViewer){cViewer.resize();cViewer.forceResize&&cViewer.forceResize();cViewer.scene.requestRender()}});window.addEventListener("orientationchange",function(){setTimeout(function(){if(LM)LM.invalidateSize();if(cViewer){cViewer.resize();cViewer.forceResize&&cViewer.forceResize();cViewer.scene.requestRender()}},350)});
+setUiFontScale(S.fontScale,true);buildMap("mercator");syncViewButtons();syncBaseButtons();setBathyOpacity(S.bathyOpacity,true);setContourOpacity(S.contourOpacity,true);setNautOpacity(S.nautOpacity,true);
+
+
+/* ================================================================
+   FEATURE 1 : Google-Maps-style Navigation Controls
+   ================================================================ */
+(function(){
+var $compassBtn   = document.getElementById("compassBtn"),
+    $compassNeedle= document.getElementById("compassNeedle"),
+    $geolocateBtn = document.getElementById("geolocateBtn"),
+    $navZoomIn    = document.getElementById("navZoomIn"),
+    $navZoomOut   = document.getElementById("navZoomOut"),
+    _geoMarker    = null,
+    _geoCircle    = null;
+
+/* ---- Compass ---- */
+function updateCompass(){
+  var heading = 0;
+  if(S.view==="globe" && typeof cViewer!=="undefined" && cViewer){
+    heading = Cesium.Math.toDegrees(cViewer.camera.heading);
+  }
+  $compassNeedle.setAttribute("transform","rotate("+(-heading)+",24,24)");
+}
+
+$compassBtn.addEventListener("click",function(){
+  if(S.view==="globe" && typeof cViewer!=="undefined" && cViewer){
+    var cam   = cViewer.camera;
+    var carto = Cesium.Cartographic.fromCartesian(cam.positionWC);
+    cViewer.camera.flyTo({
+      destination:Cesium.Cartesian3.fromDegrees(
+        Cesium.Math.toDegrees(carto.longitude),
+        Cesium.Math.toDegrees(carto.latitude),
+        carto.height),
+      orientation:{heading:0,pitch:cam.pitch,roll:0},
+      duration:0.4
+    });
+    toast("Bearing reset to north.");
+  } else {
+    toast("North-up (2-D maps are always north-up).");
+  }
+});
+
+setInterval(updateCompass,250);
+
+/* ---- Geolocate ---- */
+$geolocateBtn.addEventListener("click",function(){
+  if(!navigator.geolocation){toast("Geolocation not available.");return}
+  toast("Locating\u2026");
+  navigator.geolocation.getCurrentPosition(function(pos){
+    var lat=pos.coords.latitude, lon=pos.coords.longitude, acc=pos.coords.accuracy;
+    goTo(lat,lon,14,true);
+    if(S.view!=="globe" && LM){
+      if(_geoMarker){LM.removeLayer(_geoMarker);_geoMarker=null}
+      if(_geoCircle){LM.removeLayer(_geoCircle);_geoCircle=null}
+      _geoMarker=L.circleMarker([lat,lon],{radius:8,fillColor:"#4285F4",fillOpacity:.9,
+        color:"#fff",weight:2.5}).addTo(LM)
+        .bindPopup("<b>Your location</b><br>"+fmt(lat)+", "+fmt(lon)+"<br>Accuracy: ~"+Math.round(acc)+" m");
+      _geoCircle=L.circle([lat,lon],{radius:acc,fillColor:"#4285F4",fillOpacity:.08,
+        color:"#4285F4",weight:1,dashArray:"4 6"}).addTo(LM);
+    }
+    toast("Location: "+fmt(lat,2)+", "+fmt(lon,2));
+  },function(err){toast("Geolocation error: "+err.message)},
+    {enableHighAccuracy:true,timeout:12000,maximumAge:30000});
+});
+
+/* ---- Zoom +/- ---- */
+$navZoomIn.addEventListener("click",function(){
+  if(S.view==="globe" && typeof cViewer!=="undefined" && cViewer){
+    var c=Cesium.Cartographic.fromCartesian(cViewer.camera.positionWC);
+    cViewer.camera.flyTo({destination:Cesium.Cartesian3.fromDegrees(
+      Cesium.Math.toDegrees(c.longitude),Cesium.Math.toDegrees(c.latitude),
+      Math.max(500,c.height*0.5)),duration:0.3});
+  } else if(LM){LM.zoomIn()}
+});
+$navZoomOut.addEventListener("click",function(){
+  if(S.view==="globe" && typeof cViewer!=="undefined" && cViewer){
+    var c=Cesium.Cartographic.fromCartesian(cViewer.camera.positionWC);
+    cViewer.camera.flyTo({destination:Cesium.Cartesian3.fromDegrees(
+      Cesium.Math.toDegrees(c.longitude),Cesium.Math.toDegrees(c.latitude),
+      Math.min(30000000,c.height*2)),duration:0.3});
+  } else if(LM){LM.zoomOut()}
+});
+})();
+
+/* ================================================================
+   FEATURE 2 : Profile / Transect Tool
+   ================================================================ */
+(function(){
+var $panel   = document.getElementById("profilePanel"),
+    $canvas  = document.getElementById("profileCanvas"),
+    $stats   = document.getElementById("profileStats"),
+    $prog    = document.getElementById("profileProgress"),
+    $close   = document.getElementById("profileClose"),
+    $btn     = document.getElementById("btnProfile");
+
+var active=false, step=0, ptA=null, ptB=null,
+    lineLayer=null, mkA=null, mkB=null,
+    pData=null, abortCtrl=null;
+
+var N_SAMPLES=80;
+
+/* ---- helpers ---- */
+function haversine(lat1,lon1,lat2,lon2){
+  var R=6371000,dLat=(lat2-lat1)*Math.PI/180,dLon=(lon2-lon1)*Math.PI/180;
+  var a=Math.sin(dLat/2)*Math.sin(dLat/2)+
+        Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*
+        Math.sin(dLon/2)*Math.sin(dLon/2);
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+
+function clearGeo(){
+  if(!LM) return;
+  if(lineLayer){LM.removeLayer(lineLayer);lineLayer=null}
+  if(mkA){LM.removeLayer(mkA);mkA=null}
+  if(mkB){LM.removeLayer(mkB);mkB=null}
+}
+
+function reset(){
+  step=0;ptA=null;ptB=null;pData=null;
+  if(abortCtrl){try{abortCtrl.abort()}catch(e){}}
+  abortCtrl=null;
+  clearGeo();
+  $panel.classList.remove("open");
+  $stats.innerHTML="";$prog.innerHTML="";
+  document.body.classList.remove("profile-drawing");
+}
+
+/* ---- toggle ---- */
+function toggle(){
+  active=!active;
+  $btn.classList.toggle("profile-active",active);
+  if(active){
+    if(S.view==="globe"){
+      toast("Profile tool works in 2-D map modes only.");
+      active=false;$btn.classList.remove("profile-active");return;
+    }
+    reset();step=1;
+    document.body.classList.add("profile-drawing");
+    toast("Click the starting point (A) on the map.");
+    $panel.classList.add("open");
+    $stats.innerHTML="";
+    $prog.innerHTML='<div class="profile-instructions">Click point <b>A</b> (start) on the map, then click point <b>B</b> (end).</div>';
+    var ctx=$canvas.getContext("2d");
+    $canvas.width=$canvas.parentElement.offsetWidth*2;
+    $canvas.height=$canvas.parentElement.offsetHeight*2;
+    ctx.clearRect(0,0,$canvas.width,$canvas.height);
+  } else {
+    reset();
+  }
+}
+$btn.addEventListener("click",toggle);
+$close.addEventListener("click",function(){active=false;$btn.classList.remove("profile-active");reset()});
+
+/* ---- intercept map click ---- */
+var _origQuery=queryLeafletPoint;
+queryLeafletPoint=function(lat,lon,latlng){
+  if(active && (step===1||step===2)){
+    profileClick(lat,lon);
+    return;
+  }
+  _origQuery(lat,lon,latlng);
+};
+
+function profileClick(lat,lon){
+  if(step===1){
+    ptA={lat:lat,lon:lon};
+    clearGeo();
+    mkA=L.circleMarker([lat,lon],{radius:7,fillColor:"#ff6644",fillOpacity:.9,
+      color:"#fff",weight:2}).addTo(LM)
+      .bindTooltip("A",{permanent:true,direction:"right"});
+    step=2;
+    toast("Now click the end point (B).");
+    $prog.innerHTML='<div class="profile-instructions">Point A set. Now click point <b>B</b> (end).</div>';
+  } else if(step===2){
+    ptB={lat:lat,lon:lon};
+    mkB=L.circleMarker([lat,lon],{radius:7,fillColor:"#44aaff",fillOpacity:.9,
+      color:"#fff",weight:2}).addTo(LM)
+      .bindTooltip("B",{permanent:true,direction:"right"});
+    lineLayer=L.polyline([[ptA.lat,ptA.lon],[lat,lon]],
+      {color:"#ff8844",weight:3,dashArray:"8 5",opacity:.85}).addTo(LM);
+    step=3;
+    document.body.classList.remove("profile-drawing");
+    toast("Sampling elevation along transect\u2026");
+    runSampling();
+  }
+}
+
+/* ---- sampling (FIXED: uses parseGebcoText for correct depth parsing) ---- */
+async function fetchGebco(lat,lon,signal){
+  var d=0.0045;
+  var bbox=[lon-d,lat-d,lon+d,lat+d].join(",");
+  var url=GEBCO_WMS+"SERVICE=WMS&VERSION=1.1.1&REQUEST=GetFeatureInfo"+
+    "&LAYERS=GEBCO_LATEST_2&QUERY_LAYERS=GEBCO_LATEST_2"+
+    "&INFO_FORMAT=text/plain&SRS=EPSG:4326&BBOX="+bbox+
+    "&WIDTH=3&HEIGHT=3&X=1&Y=1";
+  var r=await fetch(url,{cache:"no-store",signal:signal});
+  if(!r.ok) throw new Error("HTTP "+r.status);
+  var t=await r.text();
+  /* Use the existing parseGebcoText() which correctly extracts the
+     elevation/depth value from GEBCO WMS GetFeatureInfo plain-text responses */
+  var z=parseGebcoText(t);
+  return Number.isFinite(z)?z:null;
+}
+
+async function fetchEtopo(lat,lon,signal){
+  var lon360=lon<0?lon+360:lon;
+  var sLat=snap(lat,LAT_MIN,LAT_MAX,GRID_STEP);
+  var sLon=snap(lon360,LON_MIN_360,LON_MAX_360,GRID_STEP);
+  var url=ETOPO_CSV+"?z%5B("+sLat.toFixed(10)+"):1:("+sLat.toFixed(10)+
+    ")%5D%5B("+sLon.toFixed(10)+"):1:("+sLon.toFixed(10)+")%5D";
+  var r=await fetch(url,{cache:"no-store",signal:signal});
+  if(!r.ok) throw new Error("ETOPO HTTP "+r.status);
+  var txt=await r.text();
+  var lines=txt.trim().split(/\r?\n/).filter(Boolean);
+  if(lines.length<2) return null;
+  var hdr=splitCsv(lines[0]).map(function(s){return s.trim()});
+  var zi=hdr.indexOf("z"); if(zi<0) return null;
+  for(var i=1;i<lines.length;i++){
+    var v=splitCsv(lines[i]);
+    if(v.length===hdr.length && /^-?\d+(\.\d+)?([eE][+-]?\d+)?$/.test(v[zi].trim()))
+      return Number(v[zi]);
+  }
+  return null;
+}
+
+async function runSampling(){
+  abortCtrl=new AbortController();
+  var sig=abortCtrl.signal;
+  var totalDist=haversine(ptA.lat,ptA.lon,ptB.lat,ptB.lon);
+  var samples=[],failed=0;
+
+  for(var i=0;i<=N_SAMPLES;i++){
+    if(sig.aborted) return;
+    var t=i/N_SAMPLES;
+    var lat=ptA.lat+(ptB.lat-ptA.lat)*t;
+    var lon=ptA.lon+(ptB.lon-ptA.lon)*t;
+    var dist=totalDist*t;
+    $prog.textContent="Sampling "+(i+1)+"/"+(N_SAMPLES+1)+"\u2026";
+
+    var z=null;
+    try{ z=await fetchGebco(lat,lon,sig) }catch(e){}
+    if(z===null||!Number.isFinite(z)){
+      try{ z=await fetchEtopo(lat,lon,sig) }catch(e2){}
+    }
+    if(z===null||!Number.isFinite(z)){failed++;z=null}
+    samples.push({t:t,lat:lat,lon:lon,dist:dist,z:z});
+  }
+  if(sig.aborted) return;
+
+  /* interpolate missing */
+  for(var j=0;j<samples.length;j++){
+    if(samples[j].z!==null) continue;
+    var prev=null,next=null;
+    for(var p=j-1;p>=0;p--){if(samples[p].z!==null){prev=samples[p].z;break}}
+    for(var n=j+1;n<samples.length;n++){if(samples[n].z!==null){next=samples[n].z;break}}
+    if(prev!==null && next!==null) samples[j].z=(prev+next)/2;
+    else if(prev!==null) samples[j].z=prev;
+    else if(next!==null) samples[j].z=next;
+    else samples[j].z=0;
+  }
+
+  pData=samples;
+  $prog.textContent=failed>0?
+    failed+" of "+(N_SAMPLES+1)+" samples interpolated.":
+    "All "+(N_SAMPLES+1)+" samples retrieved.";
+  drawChart();
+  showStats(totalDist);
+}
+
+/* ---- chart ---- */
+function drawChart(){
+  if(!pData||!pData.length) return;
+  var wrap=$canvas.parentElement;
+  var dpr=window.devicePixelRatio||1;
+  var W=wrap.offsetWidth, H=wrap.offsetHeight;
+  $canvas.width=W*dpr; $canvas.height=H*dpr;
+  $canvas.style.width=W+"px"; $canvas.style.height=H+"px";
+  var ctx=$canvas.getContext("2d");
+  ctx.scale(dpr,dpr);
+
+  var pad={top:24,right:18,bottom:32,left:58};
+  var cw=W-pad.left-pad.right, ch=H-pad.top-pad.bottom;
+
+  var zArr=pData.map(function(s){return s.z});
+  var zMin=Math.min.apply(null,zArr), zMax=Math.max.apply(null,zArr);
+  if(zMin>0) zMin=-10;
+  if(zMax<0) zMax=10;
+  var zR=zMax-zMin; zMin-=zR*.08; zMax+=zR*.08;
+  var maxD=pData[pData.length-1].dist;
+
+  function xP(d){return pad.left+d/maxD*cw}
+  function yP(z){return pad.top+(1-(z-zMin)/(zMax-zMin))*ch}
+
+  /* background */
+  ctx.fillStyle="rgba(4,10,20,.9)"; ctx.fillRect(0,0,W,H);
+
+  /* horizontal grid */
+  ctx.strokeStyle="rgba(125,190,235,.1)"; ctx.lineWidth=0.5;
+  var nY=6;
+  for(var g=0;g<=nY;g++){
+    var gy=pad.top+ch*g/nY;
+    ctx.beginPath();ctx.moveTo(pad.left,gy);ctx.lineTo(pad.left+cw,gy);ctx.stroke();
+  }
+
+  /* sea-level reference line */
+  var y0=yP(0);
+  if(y0>=pad.top && y0<=pad.top+ch){
+    /* water tint */
+    ctx.fillStyle="rgba(25,85,155,.1)";
+    ctx.fillRect(pad.left,y0,cw,pad.top+ch-y0);
+    /* dashed line */
+    ctx.save();ctx.setLineDash([6,4]);
+    ctx.strokeStyle="rgba(80,160,240,.55)";ctx.lineWidth=1.3;
+    ctx.beginPath();ctx.moveTo(pad.left,y0);ctx.lineTo(pad.left+cw,y0);ctx.stroke();
+    ctx.restore();
+    /* label */
+    ctx.fillStyle="rgba(80,160,240,.75)";
+    ctx.font="10px "+getComputedStyle(document.body).fontFamily;
+    ctx.textAlign="left";
+    ctx.fillText("Sea level (0 m)",pad.left+4,y0-4);
+  }
+
+  /* filled terrain polygon */
+  ctx.beginPath();
+  ctx.moveTo(xP(pData[0].dist),yP(pData[0].z));
+  for(var i=1;i<pData.length;i++) ctx.lineTo(xP(pData[i].dist),yP(pData[i].z));
+  ctx.lineTo(xP(pData[pData.length-1].dist),yP(zMin));
+  ctx.lineTo(xP(pData[0].dist),yP(zMin));
+  ctx.closePath();
+
+  var seaFrac=Math.max(0,Math.min(1,zMax/(zMax-zMin)));
+  var grad=ctx.createLinearGradient(0,pad.top,0,pad.top+ch);
+  grad.addColorStop(0,"rgba(120,175,75,.35)");
+  grad.addColorStop(seaFrac,"rgba(55,125,55,.18)");
+  grad.addColorStop(seaFrac,"rgba(40,100,180,.22)");
+  grad.addColorStop(1,"rgba(18,55,110,.4)");
+  ctx.fillStyle=grad; ctx.fill();
+
+  /* profile line */
+  ctx.beginPath();
+  ctx.moveTo(xP(pData[0].dist),yP(pData[0].z));
+  for(var i=1;i<pData.length;i++) ctx.lineTo(xP(pData[i].dist),yP(pData[i].z));
+  ctx.strokeStyle="rgba(255,175,70,.9)";ctx.lineWidth=2;ctx.stroke();
+
+  /* Y-axis labels */
+  ctx.fillStyle="rgba(180,210,235,.65)";
+  ctx.font="10px "+getComputedStyle(document.body).fontFamily;
+  ctx.textAlign="right";
+  for(var g=0;g<=nY;g++){
+    var gzl=zMin+(zMax-zMin)*(nY-g)/nY;
+    ctx.fillText(Math.round(gzl)+" m",pad.left-6,pad.top+ch*g/nY+3);
+  }
+
+  /* X-axis labels */
+  ctx.textAlign="center";
+  var nX=5;
+  for(var gx=0;gx<=nX;gx++){
+    var gd=maxD*gx/nX;
+    var lbl=maxD>5000?(gd/1000).toFixed(1)+" km":Math.round(gd)+" m";
+    ctx.fillText(lbl,xP(gd),pad.top+ch+16);
+  }
+
+  /* axis titles */
+  ctx.fillStyle="rgba(155,215,255,.55)";
+  ctx.font="bold 10px "+getComputedStyle(document.body).fontFamily;
+  ctx.textAlign="center";
+  ctx.fillText("Distance",pad.left+cw/2,H-3);
+  ctx.save();ctx.translate(13,pad.top+ch/2);ctx.rotate(-Math.PI/2);
+  ctx.fillText("Elevation (m)",0,0);ctx.restore();
+
+  /* A / B endpoint labels */
+  ctx.font="bold 11px "+getComputedStyle(document.body).fontFamily;
+  ctx.textAlign="center";
+  ctx.fillStyle="#ff6644"; ctx.fillText("A",xP(0),pad.top-7);
+  ctx.fillStyle="#44aaff"; ctx.fillText("B",xP(maxD),pad.top-7);
+}
+
+function showStats(totalDist){
+  var zArr=pData.map(function(s){return s.z});
+  var mn=Math.min.apply(null,zArr), mx=Math.max.apply(null,zArr);
+  var nm=totalDist/1852;
+  $stats.innerHTML=
+    '<div><span class="stat-label">Distance:</span><span class="stat-value">'+
+      (totalDist>=1000?(totalDist/1000).toFixed(2)+" km":Math.round(totalDist)+" m")+
+      " &nbsp;|&nbsp; "+nm.toFixed(2)+" NM &nbsp;|&nbsp; "+
+      Math.round(totalDist).toLocaleString()+" m</span></div>"+
+    '<div><span class="stat-label">Min elev:</span><span class="stat-value">'+
+      Math.round(mn).toLocaleString()+" m</span></div>"+
+    '<div><span class="stat-label">Max elev:</span><span class="stat-value">'+
+      Math.round(mx).toLocaleString()+" m</span></div>"+
+    '<div><span class="stat-label">Elev range:</span><span class="stat-value">'+
+      Math.round(mx-mn).toLocaleString()+" m</span></div>";
+}
+
+/* resize redraw */
+window.addEventListener("resize",function(){
+  if(pData && $panel.classList.contains("open")) setTimeout(drawChart,120);
+});
+})();
+
+
+})();
+</script>
+</body>
+</html>
