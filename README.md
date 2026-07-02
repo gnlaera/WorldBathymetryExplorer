@@ -9,6 +9,8 @@
 
 ---
 
+Live version: https://gnlaera.github.io/WorldBathymetryExplorer/
+
 ## Overview
 
 World Bathymetry Explorer is a zero-install web application for exploring global bathymetry, coastal elevation, marine contours, nautical overlays and 3D globe context.
