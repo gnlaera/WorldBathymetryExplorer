@@ -1,160 +1,323 @@
 # World Bathymetry Explorer
 
-**A browser-based bathymetry, nautical chart, contour and 3D globe explorer using public ocean data services.**
+**A browser-based bathymetry, contour, nautical overlay, point-probe and 3D globe explorer using public ocean data services.**
 
 ![Licence](https://img.shields.io/badge/licence-GPL--3.0--or--later-blue)
-![Single File](https://img.shields.io/badge/build-none%20%E2%80%93%20single%20HTML%20file-green)
+![No Build](https://img.shields.io/badge/build-none-green)
 ![No API Key](https://img.shields.io/badge/API%20keys-none%20required-brightgreen)
+![Architecture](https://img.shields.io/badge/app-two%20files-blue)
 
 ---
 
 ## Overview
 
-World Bathymetry Explorer is a zero-install, single-file HTML application that lets you visualise ocean bathymetry, terrain elevation, nautical charts and contour data from public sources. It runs entirely in the browser with no build step, no server, and no API keys.
+World Bathymetry Explorer is a zero-install web application for exploring global bathymetry, coastal elevation, marine contours, nautical overlays and 3D globe context.
 
-Open the file. Explore the ocean floor.
+It runs entirely in the browser. There is no backend, no build step, no package manager and no private API key.
+
+The release application is intentionally simple:
+
+```text
+index.html
+app.js
+```
+
+Open `index.html` in a modern browser, or deploy the two files to a static host such as GitHub Pages.
+
+**Not for navigation.** This is a screening, exploration and context tool. Use official nautical charts and approved products for navigation, marine operations and safety-of-life decisions.
 
 ---
 
-## Features
+## Key Features
 
-### Map Projections
+### 2D Map and 3D Globe
 
-| Mode | Projection | Notes |
-|------|-----------|-------|
-| **2D Map** | Web Mercator (EPSG:3857) | Full XYZ tile stack, deep zoom (z 0–20), standard web mapping |
-| **2D Map** | Plate Carree (EPSG:4326) | WMS-only layers, poles visible, max zoom ~8 |
-| **3D Globe** | Cesium 3D | CesiumJS loaded on demand, camera tilt/rotate, terrain draping |
+| Mode | Technology | Purpose |
+|---|---|---|
+| **2D map** | Leaflet, Web Mercator | Main working view for bathymetry, contours, overlays, search, point probes and profiles |
+| **3D globe** | CesiumJS, loaded on demand | Global context, terrain-aware visualisation and rotated globe exploration |
 
-The application **auto-transitions** between Mercator and Plate Carree based on zoom level:
+Plate Carree mode has been removed. The product now keeps the normal user experience focused on the 2D Web Mercator map and the optional 3D globe.
 
-- Zoom out to z ≤ 3 → switches to Plate Carree (global screening view)
-- Zoom in to z ≥ 5 → switches to Mercator (detail view with full tile layers)
-- Zoom 4 is a hysteresis band (no switch) to prevent flickering
+---
 
-### Bathymetry and Overlay Layers
+## Data Layers
 
-- **GEBCO 2024** — global bathymetry colour-shaded raster (WMS)
-- **GEBCO contour lines** — isobath contours at multiple intervals (XYZ tiles)
-- **NOAA BAG hillshade** — high-resolution survey bathymetry (WMS)
-- **NOAA/NCEI DEM hillshade** — coastal digital elevation models (WMS)
-- **ETOPO 2022** — combined topo-bathy elevation model (ERDDAP)
-- **EMODnet** — European marine bathymetry (WMS)
-- **OpenSeaMap** — nautical seamark overlay (XYZ tiles)
-- **Esri Ocean Reference** — labels, boundaries, place names (XYZ tiles)
-- **Esri Ocean Basemap** — stylised ocean base layer
-- **CARTO dark/light** — minimal cartographic basemaps
-- **Esri Street, Satellite, Hybrid** — general-purpose basemaps
-- **ArcGIS ENC** — Electronic Nautical Charts rendered via Esri (XYZ tiles)
+World Bathymetry Explorer combines public map, bathymetry and marine data services.
 
-### Point Depth / Elevation Probe
+### Bathymetry and elevation
 
-Click anywhere on the 2D map to query depth or elevation. The probe uses a multi-source fallback stack:
+| Layer | Description |
+|---|---|
+| **GEBCO bathymetry and elevation colour relief** | Global bathymetry and land elevation visual layer |
+| **NOAA BAG** | High-resolution surveyed bathymetry where coverage exists |
+| **NOAA/NCEI DEM** | Coastal digital elevation model coverage where available |
+| **ETOPO 2022** | NOAA global topo-bathymetry fallback grid for context |
 
-1. **NOAA BAG** (survey-grade, where available)
-2. **NOAA/NCEI DEM** (coastal high-resolution)
-3. **GEBCO WMS** GetFeatureInfo (global coverage)
-4. **ETOPO 2022** via ERDDAP CSV (global fallback)
+### Contours and marine overlays
 
-Results are displayed in a depth card showing the value, source, and coordinates.
+| Layer | Description |
+|---|---|
+| **GEBCO / NOAA/NCEI depth contours** | Indicative depth contours derived from GEBCO 2019 contours |
+| **OpenSeaMap seamarks** | Nautical seamark overlay |
+| **NOAA ENC / Esri nautical chart layers** | Electronic nautical chart-style reference layers where available |
+| **EMODnet bathymetry** | European marine bathymetry context |
+| **USGS / Esri tectonics** | Plate boundary and tectonic reference overlays |
 
-### Elevation / Bathymetry Profile (Transect Tool)
+### Basemaps
 
-1. Click **Profile** in the control bar
-2. Click point **A** (start) on the map
-3. Click point **B** (end) on the map
-4. The tool samples ~81 elevation points along the transect line
+| Basemap | Description |
+|---|---|
+| **Map** | General-purpose reference map |
+| **Satellite hybrid** | Satellite imagery with labels |
+| **Ocean chart** | Ocean-focused reference basemap |
+| **CARTO / OpenStreetMap-derived basemaps** | Light and dark contextual mapping where enabled |
 
-The profile panel displays:
+All third-party data remains subject to the relevant provider terms, licences and service availability.
 
-- **Canvas cross-section chart** with gradient terrain fill, sea-level reference line, grid, and axis labels
-- **Distance** in kilometres, nautical miles, and metres (Haversine great-circle formula)
-- **Min / max elevation** and total elevation range along the transect
-- Sampling progress indicator and fallback interpolation for failed points
+---
 
-Elevation data is sampled from GEBCO WMS GetFeatureInfo (primary) with ETOPO ERDDAP CSV as fallback.
+## Default View
 
-### Navigation Controls
+On first load, the app starts in 2D map mode with:
 
-A Google Maps-style control stack on the right side of the screen:
+```text
+Bathymetry: GEBCO colour relief
+Contours: GEBCO / NOAA/NCEI indicative depth contours
+Nautical overlays: off
+```
+
+The default internal active state is:
+
+```javascript
+aB: ["gebcoFlat"]
+aC: ["gebcoContours"]
+aN: []
+```
+
+This keeps the first-load experience focused on global bathymetry plus indicative contours without immediately increasing nautical overlay request volume.
+
+---
+
+## Contours
+
+The default 2D contour layer uses the NOAA/NCEI GEBCO 2019 contour MapServer export service where available. This avoids relying only on overzoomed cached raster contour tiles at close zoom levels.
+
+A cached GEBCO contour service may be used as a safety fallback if the dynamic export layer fails or returns blank tiles.
+
+In the 3D globe, contours continue to use the cached contour provider with limited native detail. This keeps the globe stable without adding a large Cesium contour rewrite.
+
+Contour caveats:
+
+- Contours are indicative.
+- They are not official chart contours.
+- They may differ from the current GEBCO bathymetry colour-relief visual layer.
+- They are not suitable for navigation or operational clearance decisions.
+
+---
+
+## Point Depth and Elevation Probe
+
+Click the 2D map to query a point depth or elevation.
+
+The probe uses a conservative fallback stack:
+
+```text
+NOAA BAG → NOAA/NCEI DEM → GEBCO → ETOPO 2022
+```
+
+The first valid numeric result is displayed in the depth card.
+
+Where available, the result includes:
+
+| Field | Meaning |
+|---|---|
+| **Value** | Depth or elevation at the clicked point |
+| **Source** | Data service that returned the value |
+| **Product** | Survey, DEM, grid or product name where returned |
+| **Datum** | Vertical datum where available |
+| **Resolution** | Cell size or approximate product resolution where available |
+| **Confidence** | Practical confidence level based on source type |
+| **Caveat** | Source-specific limitation and navigation warning |
+
+Important interpretation points:
+
+- NOAA BAG is high-resolution surveyed bathymetry where coverage exists.
+- BAG and chart-derived products may use chart datums such as Mean Lower Low Water depending on source.
+- NOAA DEMs may expose attributes such as DEM name, vertical datum, cell size and metadata URL.
+- GEBCO is a global gridded product, not a surveyed spot depth.
+- ETOPO 2022 is a 15 arc-second NOAA global grid using EGM2008 height and should be treated as context only.
+- Values from different products and datums should not be treated as directly comparable.
+
+---
+
+## Profile Tool
+
+The profile tool samples a transect between two points.
+
+Workflow:
+
+1. Select **Profile**.
+2. Click point **A** on the map.
+3. Click point **B** on the map.
+4. Review the sampled bathymetry / elevation profile.
+
+The profile panel shows:
+
+- Cross-section chart
+- Distance in kilometres and nautical miles
+- Deepest valid sample
+- Shallowest valid sample
+- Highest valid sample where above sea level
+- Source contribution summary
+- Confidence warnings where fallback or missing samples are material
+
+Profile results are based on valid numeric samples only. If too many samples rely on fallback data or return no numeric value, the app surfaces a warning rather than implying false precision.
+
+---
+
+## Search
+
+Search supports two modes.
+
+| Search type | Behaviour |
+|---|---|
+| **Coordinates** | Direct coordinate entry, handled immediately in-browser |
+| **Named places** | OpenStreetMap Nominatim geocoding, throttled and cached in memory |
+
+Examples:
+
+```text
+-31.9505, 115.8605
+32°03'S 115°44'E
+Perth, Western Australia
+Mariana Trench
+```
+
+Named-place search is intentionally simple. There is no autocomplete and no background search loop. This keeps request volume low and respects public geocoding service limits.
+
+Once named-place search is used, the attribution badge includes OpenStreetMap Nominatim.
+
+---
+
+## Controls
+
+### Main controls
 
 | Control | Function |
-|---------|----------|
-| **Compass** | Rotates the map 90 degrees per click (0 → 90 → 180 → 270 → 0). Needle always points to geographic north. Works in both 2D (CSS rotation with coordinate un-rotation) and 3D (Cesium camera heading). |
-| **Geolocate** | Uses browser geolocation to fly to your position. Drops a blue marker with accuracy circle on the map. |
-| **Zoom +/-** | Zoom in/out. Works in both Leaflet (2D) and Cesium (3D) modes. Replaces the default Leaflet zoom control. |
+|---|---|
+| **2D map** | Return to the main Leaflet map |
+| **3D globe** | Switch to Cesium globe mode |
+| **Hide UI** | Collapse interface controls for a cleaner view |
+| **Search** | Fly to coordinates or named places |
+| **Layers** | Toggle bathymetry, contour, nautical and reference overlays |
+| **Quick view** | Jump to predefined areas of interest |
+| **About data** | Review source and data caveats |
 
-### Layer Opacity Controls
+### Map controls
 
-Dedicated sliders for:
+| Control | Function |
+|---|---|
+| **Compass** | Rotates the 2D map or 3D camera heading |
+| **Geolocate** | Uses browser geolocation where permitted |
+| **Zoom +/-** | Zooms the active view |
+| **Profile** | Starts transect sampling |
+| **Clear** | Clears active drawings, markers or overlays where applicable |
 
-- **Bathymetry** layer opacity (0–100%)
-- **Contour** overlay opacity (0–100%)
-- **Nautical** overlay opacity (0–100%)
+### Sliders
 
-### UI Presets
+| Slider | Function |
+|---|---|
+| **Bathymetry** | Adjusts bathymetry layer opacity |
+| **Contours** | Adjusts contour layer opacity |
+| **Nautical** | Adjusts nautical overlay opacity |
+| **Font size** | Adjusts interface text scaling |
 
-Quick-apply configurations for common use cases:
+---
 
-| Preset | Description |
-|--------|-------------|
-| **50/50 blend** | Balanced bathymetry + basemap |
-| **Contours** | Chart-style contour emphasis |
-| **Dive detail** | Maximum bathymetry + nautical overlay |
+## Presets
 
-### Search
+| Preset | Purpose |
+|---|---|
+| **50/50 blend** | Balanced bathymetry and basemap visibility |
+| **Chart-style contours** | Emphasises contour interpretation |
+| **Dive-detail preset** | Prioritises bathymetry and nautical overlays |
+| **Tectonics on** | Adds tectonic context |
+| **Plate boundary view** | Shows tectonic plate boundaries, not a map projection mode |
+| **Clear overlays** | Resets optional overlays |
 
-- **Place name search** via OpenStreetMap Nominatim geocoding
-- **Direct coordinate entry** (e.g. `-32.05, 115.74` or `32°03'S 115°44'E`)
-- Fly-to animation on selection
+---
 
-### Additional Features
+## Attribution
 
-- **Quick view bookmarks** — jump to predefined locations of interest
-- **Minimap** — overview inset map (Mercator mode only)
-- **Font scaling** — adjustable UI text size
-- **Hide UI** — collapse all controls for a clean full-screen map
-- **Responsive design** — mobile-optimised layout with 44px minimum touch targets and safe-area-inset support for notched devices
+The app includes an active attribution badge that updates based on visible and recently used services.
+
+Attribution may include, depending on active layers and actions:
+
+- GEBCO
+- NOAA / NCEI
+- NOAA BAG
+- NOAA ENC
+- ETOPO 2022
+- Esri
+- OpenSeaMap
+- EMODnet
+- CARTO
+- OpenStreetMap
+- OpenStreetMap Nominatim
+- USGS / Esri tectonics
+- Leaflet
+- CesiumJS
+
+The application code is licensed separately from the data. Third-party map data, bathymetry grids, chart services, tiles, basemaps and JavaScript libraries remain under their own licences and terms.
 
 ---
 
 ## Getting Started
 
-No installation, no build, no server required.
+### Option 1: Open locally
 
+```text
+1. Download the release ZIP.
+2. Extract index.html and app.js into the same folder.
+3. Open index.html in a modern browser.
 ```
-1. Download  worldbathymetrymap_v2.html
-2. Open it in any modern browser (Chrome, Firefox, Edge, Safari)
-3. Explore
+
+An active internet connection is required because the app streams public map, tile, Web Map Service and elevation data from external services.
+
+### Option 2: Deploy with GitHub Pages
+
+```text
+1. Put index.html and app.js in the repository root.
+2. Commit and push to GitHub.
+3. Open repository Settings.
+4. Go to Pages.
+5. Select the main branch and root folder.
+6. Save.
 ```
 
-The application loads all map tiles, WMS services, and elevation data from public endpoints on the internet. An active internet connection is required.
-
-### Requirements
-
-- A modern web browser with JavaScript enabled
-- Internet connection (for tile and WMS data services)
-- No API keys needed
+GitHub Pages will serve `index.html` as the application entry point.
 
 ---
 
-## Data Sources and Attribution
+## Requirements
 
-| Source | Data | Licence / Terms | Link |
-|--------|------|----------------|------|
-| GEBCO | Global bathymetry grid, contours, WMS | GEBCO Terms of Use | [gebco.net](https://www.gebco.net/) |
-| NOAA NCEI | BAG surveys, DEM hillshades | Public domain (US Gov) | [ncei.noaa.gov](https://www.ncei.noaa.gov/) |
-| ETOPO 2022 | Global topo-bathymetry grid | Public domain (US Gov) | [ERDDAP](https://coastwatch.pfeg.noaa.gov/erddap/) |
-| EMODnet | European marine bathymetry | EMODnet Terms | [emodnet.ec.europa.eu](https://emodnet.ec.europa.eu/) |
-| OpenSeaMap | Nautical seamarks | ODbL | [openseamap.org](https://www.openseamap.org/) |
-| Esri | Basemaps (street, satellite, ocean) | Esri Master Licence | [esri.com](https://www.esri.com/) |
-| CARTO | Dark/light basemap tiles | CARTO Terms | [carto.com](https://carto.com/) |
-| OpenStreetMap / Nominatim | Geocoding, place search | ODbL | [openstreetmap.org](https://www.openstreetmap.org/) |
-| ArcGIS | Electronic Nautical Charts (ENC) | Esri Terms | [nauticalcharts.noaa.gov](https://nauticalcharts.noaa.gov/) |
-| Leaflet | 2D map library (v1.9.4) | BSD-2-Clause | [leafletjs.com](https://leafletjs.com/) |
-| CesiumJS | 3D globe library (v1.103) | Apache-2.0 | [cesium.com](https://cesium.com/) |
+- Modern browser with JavaScript enabled
+- Internet connection
+- WebGL-capable browser for 3D globe mode
+- No API keys
+- No build tools
+- No package manager
+- No backend server
 
-Third-party map data, chart data, bathymetry services, tiles, libraries, and basemaps remain under their own licences and terms. See individual sources for details.
+Test target browsers:
+
+- Chrome
+- Edge
+- Firefox
+- Safari
+- iOS Safari
+- Chrome for Android
 
 ---
 
@@ -162,110 +325,139 @@ Third-party map data, chart data, bathymetry services, tiles, libraries, and bas
 
 ### Architecture
 
-- **Single-file HTML application** (~95 KB) — all CSS, HTML, and JavaScript in one file
-- **Leaflet 1.9.4** for 2D map rendering (loaded from CDN)
-- **CesiumJS 1.103** for 3D globe (loaded on demand from CDN, only when 3D mode is activated)
-- **No build tools** — no npm, webpack, or transpilation step
-- **No API keys** — all services used are publicly accessible without authentication
+The release application is deliberately lightweight:
 
-### Auto Projection Switching
-
-The 2D map mode intelligently switches between two projections:
-
-- **Web Mercator** (EPSG:3857) at zoom ≥ 5 — supports the full XYZ tile stack (GEBCO contour tiles, OpenSeaMap, Esri overlays) and deep zoom for coastal detail
-- **Plate Carree** (EPSG:4326) at zoom ≤ 3 — WMS-only layers, but shows the full globe including poles
-
-A hysteresis band at zoom 4 prevents rapid switching. The transition preserves the current map centre and bearing.
-
-### Map Rotation
-
-Leaflet does not natively support map bearing/rotation. The implementation uses:
-
-1. **CSS `transform: rotate()`** applied to the `.leaflet-map-pane` element
-2. **Coordinate un-rotation patch** on `L.Map.prototype.mouseEventToContainerPoint` to translate screen coordinates back to geographic coordinates on the rotated map
-
-This ensures clicks, panning, coordinate display, and all overlays work correctly at any bearing. The rotation animates with a 350ms cubic-bezier transition.
-
-In 3D Globe mode, compass rotation controls the Cesium camera heading directly.
-
-### Profile Tool Sampling
-
-The transect tool samples elevation at ~81 evenly spaced points along the A→B line:
-
-1. **Primary source:** GEBCO WMS GetFeatureInfo — queries the GEBCO visual layer for each point
-2. **Fallback source:** ETOPO 2022 via ERDDAP CSV — grid query for the nearest cell
-3. **Response parsing:** Uses the same `parseGebcoText()` function as the depth probe, which extracts elevation from keyword lines (`value`, `elevation`, `height`) in the WMS plain-text response
-4. **Interpolation:** Failed samples are linearly interpolated from their nearest valid neighbours
-
-Distance is calculated using the **Haversine formula** for great-circle distance on a spherical Earth (R = 6,371 km).
-
-### Depth Probe Fallback Stack
-
-The point depth query cascades through up to four sources:
-
-```
-NOAA BAG (survey-grade) → NOAA/NCEI DEM (coastal) → GEBCO WMS → ETOPO ERDDAP
+```text
+index.html    # HTML shell, controls, layout and styles
+app.js        # Application logic, map state, layers, search, probes and profiles
 ```
 
-Each source is tried in order; the first to return a valid numeric value is used. The depth card displays the source alongside the result.
+There is no bundler, transpiler, package manager or server runtime.
+
+External libraries are loaded from public content delivery networks or public service endpoints. CesiumJS is loaded only when the 3D globe is activated.
+
+### 2D map
+
+The 2D map uses Leaflet in Web Mercator.
+
+Leaflet panes are used to keep layer ordering predictable:
+
+```text
+Basemap
+Bathymetry
+Contours
+Nautical overlays
+Reference overlays
+Labels and UI
+```
+
+The GEBCO contour layer remains in the contours pane above bathymetry.
+
+### 3D globe
+
+The 3D globe uses CesiumJS and is loaded lazily to avoid increasing first-load weight.
+
+The 3D globe is intended for context and inspection. It should not be treated as a precise marine operational view.
+
+### Request discipline
+
+The app is designed to avoid unnecessary public service load.
+
+Key behaviours:
+
+- Named-place search is throttled.
+- Repeated named-place searches are cached in memory.
+- Coordinate search does not call Nominatim.
+- ETOPO fallback requests are bounded.
+- ETOPO profile fallback is used only for missing samples.
+- Repeated ETOPO failures trigger backoff rather than hammering the service.
+- Large sample data is not stored in localStorage.
 
 ---
 
-## Browser Compatibility
+## Limitations
 
-Tested in:
+World Bathymetry Explorer is useful for screening and visual context. It is not an authority of record.
 
-- Google Chrome 120+
-- Mozilla Firefox 120+
-- Microsoft Edge 120+
-- Safari 17+
+Known limitations:
 
-Mobile browsers (iOS Safari, Chrome for Android) are supported with responsive layout and touch-optimised controls.
+- Public services may be slow, unavailable, rate-limited or changed by providers.
+- Different bathymetry and elevation products use different grids, resolutions and vertical datums.
+- Global grids can smooth or miss local seabed features.
+- Contours are indicative and may not align perfectly with the active bathymetry colour relief.
+- NOAA BAG and DEM coverage is uneven globally.
+- ETOPO is suitable as a broad fallback, not as a high-resolution local source.
+- 3D globe contours are limited by the cached contour source.
+- Browser geolocation depends on device, browser and permission quality.
 
 ---
 
 ## Licence
 
-Application code is licensed under the **GNU General Public License v3.0 or later** (GPL-3.0-or-later).
+Application code is licensed under the **GNU General Public License v3.0 or later**.
 
-Third-party map data, chart data, bathymetry services, tiles, libraries, and basemaps remain under their own licences and terms.
+Third-party map data, chart data, bathymetry services, tiles, libraries and basemaps remain under their own licences and terms.
 
-See [LICENCE](LICENCE) for the full licence text.
+See `LICENCE` for the full application licence text.
 
 ---
 
 ## Disclaimer
 
-**Not for navigation.** This is a screening and exploration tool. Use official nautical charts and products for navigation and safety-of-life decisions. The application licence does not re-license third-party map, chart, or bathymetry data.
+**Not for navigation.**
+
+This application is a screening, exploration and educational tool. It must not be used for navigation, passage planning, safe clearance assessment, marine operations, engineering design, emergency response or safety-of-life decisions.
+
+Use official nautical charts, notices to mariners, hydrographic office products and approved operational systems for navigation and marine safety.
 
 ---
 
 ## Contributing
 
-Contributions are welcome. To contribute:
+Contributions are welcome, but changes should preserve the product's current operating discipline.
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/your-feature`)
-3. Make your changes to `worldbathymetrymap_v2.html`
-4. Test in at least two browsers (desktop + mobile)
-5. Submit a pull request with a clear description of the change
+Guidelines:
 
-### Guidelines
+1. Keep the release app to `index.html` and `app.js`.
+2. Do not add a build step, package manager, backend or framework.
+3. Do not add private tokens, paid services or authenticated-only services.
+4. Preserve the default active state:
 
-- Maintain the single-file architecture — all code stays in one HTML file
-- Use `var` and function declarations (no `let`/`const`/arrow functions) to match the existing code style
-- Ensure all new UI elements meet the 44px minimum touch target on mobile
-- Test at multiple zoom levels and in all three view modes (Mercator, Plate Carree, 3D Globe)
-- Do not add dependencies that require API keys
+   ```javascript
+   aB: ["gebcoFlat"]
+   aC: ["gebcoContours"]
+   aN: []
+   ```
+
+5. Keep the not-for-navigation stance visible.
+6. Test both 2D map and 3D globe mode.
+7. Test point probe, profile, search and layer opacity controls.
+8. Avoid increasing request volume to public services.
+9. Keep attribution and source caveats current.
+10. Run a JavaScript syntax check before submitting:
+
+   ```bash
+   node --check app.js
+   ```
 
 ---
 
 ## Project Structure
 
-```
+Typical repository structure:
+
+```text
 .
-├── worldbathymetrymap_v2.html   # The application (single file)
-├── README.md                    # This file
-├── LICENCE                      # GPL-3.0-or-later
-└── ATTRIBUTION.md               # Third-party data source attribution
+├── index.html
+├── app.js
+├── README.md
+├── LICENCE
+└── ATTRIBUTION.md
+```
+
+The deployable application itself requires only:
+
+```text
+index.html
+app.js
 ```
